@@ -1,5 +1,6 @@
 import { openStage } from "./driver.mjs";
-import { SCENES, ORDER } from "./scenes.mjs";
+const SCRIPT = process.env.SCRIPT === "short" ? "./scenes-short.mjs" : "./scenes.mjs";
+const { SCENES, ORDER } = await import(SCRIPT);
 
 const OUT = process.env.OUT ?? "/tmp/ody-video";
 const BASE = process.env.BASE ?? "http://localhost:4311";
@@ -10,7 +11,9 @@ const H = Number(process.env.H ?? 900);
 const stage = await openStage({ width: W, height: H, dir: OUT, base: BASE });
 
 // Partial runs need the demo already entered, otherwise the scene starts on a blank page.
-if (only[0] !== "opening") {
+// Scenes that open the site themselves must not be preceded by a bootstrap.
+const SELF_STARTING = new Set(["opening", "site"]);
+if (!SELF_STARTING.has(only[0])) {
   await stage.page.goto(`${BASE}/enter`, { waitUntil: "networkidle" });
   await stage.page.getByRole("button", { name: "Enter demo as", exact: false }).first().click();
   await stage.page.waitForURL("**/dashboard", { timeout: 20000 });

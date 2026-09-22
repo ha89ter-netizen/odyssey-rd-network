@@ -189,3 +189,31 @@ a.og-listrow:hover { background: rgba(255, 255, 255, 0.6); }
 .og-link:hover { border-bottom-color: var(--teal-deep); }
 
 .og-skel { border-radius: 8px; background: rgba(15,42,51,0.06); }
+
+/* ---------------------------- secure call ---------------------------- */
+.og-callgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 720px) { .og-callgrid { grid-template-columns: 1fr; } }
+
+.og-calltile {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 11px; align-items: center;
+  padding: 13px 14px; border-radius: 12px; border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.55); transition: border-color 260ms, background 260ms;
+}
+.og-calltile[data-speaking="true"] { border-color: rgba(47, 157, 140, 0.55); background: rgba(47, 157, 140, 0.08); }
+
+.og-callbars { display: inline-flex; align-items: flex-end; gap: 2px; height: 14px; }
+.og-callbars i { width: 3px; height: 4px; border-radius: 2px; background: var(--ink-4); display: block; }
+.og-calltile[data-speaking="true"] .og-callbars i { background: var(--teal); animation: og-vu 900ms ease-in-out infinite; }
+.og-calltile[data-speaking="true"] .og-callbars i:nth-child(2) { animation-delay: 140ms; }
+.og-calltile[data-speaking="true"] .og-callbars i:nth-child(3) { animation-delay: 280ms; }
+@keyframes og-vu { 0%, 100% { height: 4px; } 50% { height: 13px; } }
+
+.og-callpulse {
+  width: 9px; height: 9px; border-radius: 99px; background: var(--teal);
+  box-shadow: 0 0 0 0 rgba(47, 157, 140, 0.5); animation: og-callpulse 1900ms ease-out infinite;
+}
+@keyframes og-callpulse { to { box-shadow: 0 0 0 9px rgba(47, 157, 140, 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .og-callbars i, .og-callpulse { animation: none !important; }
+}

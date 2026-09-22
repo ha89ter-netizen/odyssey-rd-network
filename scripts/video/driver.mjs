@@ -133,8 +133,8 @@ class Stage {
   }
 
   /** Reads a region for a beat, as a person would. */
-  async read(selector, { nth = 0, ms = 1200 } = {}) {
-    await this.hover(selector, { nth, dwell: 0, duration: 700 });
+  async read(selector, { nth = 0, ms = 1200, duration = 700 } = {}) {
+    await this.hover(selector, { nth, dwell: 0, duration });
     await this.hold(ms);
     await this.page.evaluate(() => window.__odyRing?.(false)).catch(() => {});
   }

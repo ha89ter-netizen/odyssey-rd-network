@@ -11,6 +11,7 @@ import {
 import { useI18n, useRelTime } from "@/i18n/i18n";
 import { TrajectoryChart } from "@/components/kit";
 import { buildComparison } from "@/lib/compare";
+import { CallPanel } from "@/components/CallPanel";
 
 type EvTab = "summary" | "phenotype" | "timeline" | "documents";
 const STAGE_KEYS = ["co.stage1", "co.stage2", "co.stage3", "co.stage4", "co.stage5"] as const;
@@ -24,6 +25,7 @@ export default function CollaborationRoomPage() {
   const [tab, setTab] = React.useState<EvTab>("summary");
   const [draft, setDraft] = React.useState("");
   const [verifying, setVerifying] = React.useState(false);
+  const [onCall, setOnCall] = React.useState(false);
   const [notes, setNotes] = React.useState("");
   const threadRef = React.useRef<HTMLDivElement>(null);
 
@@ -82,6 +84,11 @@ export default function CollaborationRoomPage() {
             <Pill tone="teal">◈ {t("co.encrypted")}</Pill>
             <Pill>{t("co.openedAgo", { t: relTime(col.openedAt, state.clock) })}</Pill>
             <Pill>{t("co.auditImmutable")}</Pill>
+            {iAmParticipant && !onCall && (
+              <Button variant="ghost" style={{ height: 26, fontSize: 11.5 }} onClick={() => setOnCall(true)}>
+                ◉ {t("co.startCall")}
+              </Button>
+            )}
           </div>
         </div>
         <div className="og-row" style={{ justifyContent: "flex-end", alignItems: "flex-start" }}>
@@ -214,6 +221,7 @@ export default function CollaborationRoomPage() {
 
         {/* ------------------------- discussion & decisions ------------------------- */}
         <div className="og-stack">
+          {onCall && <CallPanel a={docA} b={docB} me={me} onEnd={() => setOnCall(false)} />}
           <Panel title={t("co.discussion")} meta={t("co.discussionMeta")} padded={false}>
             <div ref={threadRef} style={{ maxHeight: 420, overflowY: "auto", padding: "4px 18px" }}>
               {col.messages.map((msg) => {
