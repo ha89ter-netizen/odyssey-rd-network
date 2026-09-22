@@ -39,14 +39,14 @@ export const DEMO_DOCUMENTS: DemoDocument[] = [
   },
 ];
 
-export type ExtractedTerm = Phenotype & { confidence: number; evidence: string; page: string };
+export type ExtractedTerm = Phenotype & { confidence: number; evidence: string; page: string; negated?: boolean };
 
 const term = (
   hpo: string, name: string, onset: string, severity: Phenotype["severity"],
-  confidence: number, evidence: string, page: string,
+  confidence: number, evidence: string, page: string, negated = false,
 ): ExtractedTerm => ({
   hpo, term: name, onset, severity, status: "Present",
-  source: "AI extraction", verification: "unverified", confidence, evidence, page,
+  source: "AI extraction", verification: "unverified", confidence, evidence, page, negated,
 });
 
 /** Deterministic: the same document always yields the same proposals, in this order. */
@@ -64,8 +64,9 @@ const BY_DOCUMENT: Record<string, ExtractedTerm[]> = {
       "…profound cognitive impairment on structured assessment…", "p. 5"),
     term("HP:0000639", "Nystagmus", "12 months", "Mild", 0.62,
       "…intermittent ocular instability noted by parents…", "p. 4"),
+    // The parser proposed a finding the sentence actually rules out — the trap a clinician must catch.
     term("HP:0001744", "Splenomegaly", "—", "Mild", 0.41,
-      "…spleen not palpably enlarged…", "p. 6"),
+      "…spleen not palpably enlarged…", "p. 6", true),
   ],
   "metabolic-panel": [
     term("HP:0002151", "Increased serum lactate", "18 months", "Moderate", 0.97,
@@ -87,7 +88,11 @@ export function extractFrom(documentId: string): ExtractedTerm[] {
  */
 export const LOW_CONFIDENCE = 0.7;
 
-/** Terms the parser proposed but whose source sentence is a negation. */
+/**
+ * Whether the source sentence actually rules the finding out.
+ * Marked in the data rather than inferred: "has not acquired sitting" negates a
+ * milestone, not the delay it evidences, and a regex cannot tell the difference.
+ */
 export function likelyNegation(t: ExtractedTerm): boolean {
-  return /\bnot\b|\bno\b|\bwithout\b|\bdenies\b/i.test(t.evidence);
+  return t.negated === true;
 }

@@ -6,3 +6,4 @@ out
 next-env.d.ts
 .playwright-mcp
 .vercel
+video-out
