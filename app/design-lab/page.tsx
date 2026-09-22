@@ -23,8 +23,8 @@ export default function DesignLabIndex() {
             <span style={{ color: "#7c858e", letterSpacing: "0.14em", fontSize: 12 }}>{PRODUCT.tagline.toUpperCase()}</span>
           </div>
           <p style={{ color: "#a7b0b8", maxWidth: "62ch", marginTop: 18, fontSize: 13, lineHeight: 1.8 }}>
-            Design exploration. Ten visual directions for the same product, rendered against one shared synthetic
-            dataset so they can be judged on identical content rather than on different demos.
+            Design exploration. {CONCEPTS.length} visual directions for the same product, rendered against one shared
+            synthetic dataset so they can be judged on identical content rather than on different demos.
           </p>
           <p style={{ color: "#e8e4dc", marginTop: 14, fontSize: 13, letterSpacing: "0.04em" }}>
             “{PRODUCT.promise}” &nbsp;·&nbsp; {PRODUCT.principle}
@@ -59,7 +59,7 @@ export default function DesignLabIndex() {
 
         <section>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 18 }}>
-            <div style={{ color: "#7c858e", fontSize: 10, letterSpacing: "0.22em" }}>TEN DIRECTIONS</div>
+            <div style={{ color: "#7c858e", fontSize: 10, letterSpacing: "0.22em" }}>{CONCEPTS.length} DIRECTIONS</div>
             <div style={{ color: "#4d5560", fontSize: 10, letterSpacing: "0.14em" }}>
               {SCREENS.length} SCREENS EACH · SAME DATA
             </div>

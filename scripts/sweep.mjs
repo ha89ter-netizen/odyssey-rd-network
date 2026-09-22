@@ -1,7 +1,7 @@
 import { chromium } from "playwright-core";
 import { existsSync } from "node:fs";
 
-const CONCEPTS = ["01-clinical-command","02-molecular-atlas","03-swiss-clinical","04-evidence-archive","05-precision-laboratory","06-global-network","07-quiet-luxury","08-bio-glass","09-medical-os","10-human-machine"];
+const CONCEPTS = ["01-clinical-command","02-molecular-atlas","03-swiss-clinical","05-precision-laboratory","06-global-network","08-bio-glass","09-medical-os"];
 const SCREENS = ["dashboard","create","case","match","compare","room"];
 const exe = [
   `${process.env.HOME}/Library/Caches/ms-playwright/chromium_headless_shell-1228/chrome-headless-shell-mac-arm64/chrome-headless-shell`,

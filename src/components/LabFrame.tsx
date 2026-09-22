@@ -31,8 +31,10 @@ export function LabFrame({ conceptId, screen, children }: { conceptId: string; s
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
       if (t && ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName)) return;
-      if (/^[1-9]$/.test(e.key)) go(Number(e.key) - 1, screenIndex);
-      else if (e.key === "0") go(9, screenIndex);
+      if (/^[1-9]$/.test(e.key)) {
+        const n = Number(e.key) - 1;
+        if (n < CONCEPTS.length) go(n, screenIndex);
+      } else if (e.key === "0" && CONCEPTS.length >= 10) go(9, screenIndex);
       else if (e.key === "ArrowRight" || e.key === "]") go(index, screenIndex + 1);
       else if (e.key === "ArrowLeft" || e.key === "[") go(index, screenIndex - 1);
       else if (e.key === "ArrowDown") go(index + 1, screenIndex);
@@ -236,7 +238,7 @@ export function LabFrame({ conceptId, screen, children }: { conceptId: string; s
 
             <div style={{ color: "var(--lab-dim)", letterSpacing: "0.18em", fontSize: 10, marginBottom: 10 }}>KEYBOARD</div>
             {[
-              ["1 – 9, 0", "switch design direction"],
+              [`1 – ${CONCEPTS.length}`, "switch design direction"],
               ["↑ / ↓", "previous / next direction"],
               ["← / →", "previous / next screen"],
               ["G", "toggle this panel"],
@@ -249,7 +251,7 @@ export function LabFrame({ conceptId, screen, children }: { conceptId: string; s
 
             <div style={{ height: 1, background: "var(--lab-line)", margin: "20px 0" }} />
             <p style={{ color: "#8a939b", margin: 0 }}>
-              All ten directions render the same synthetic case pair — ODY-001 (Kazakhstan) and ODY-742 (Germany) — so
+              Every direction renders the same synthetic case pair — ODY-001 (Kazakhstan) and ODY-742 (Germany) — so
               they can be compared on identical content. {DISCLAIMER}.
             </p>
           </aside>

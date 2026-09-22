@@ -51,15 +51,6 @@ export const CONCEPTS: ConceptMeta[] = [
     scheme: "light",
   },
   {
-    id: "04-evidence-archive",
-    num: "04",
-    name: "Evidence Archive",
-    thesis: "A century of medical knowledge becoming searchable. Ivory, serif, provenance, burgundy.",
-    type: "Source Serif 4 / Work Sans",
-    swatches: ["#f4efe6", "#2b2723", "#7c1f2b"],
-    scheme: "light",
-  },
-  {
     id: "05-precision-laboratory",
     num: "05",
     name: "Precision Laboratory",
@@ -75,15 +66,6 @@ export const CONCEPTS: ConceptMeta[] = [
     thesis: "The network effect made visible. Geography, institutions, one line from Astana to Heidelberg.",
     type: "Work Sans / IBM Plex Mono",
     swatches: ["#fbfcfd", "#0d2240", "#1d7a5f"],
-    scheme: "light",
-  },
-  {
-    id: "07-quiet-luxury",
-    num: "07",
-    name: "Quiet Luxury MedTech",
-    thesis: "Restraint as authority. Warm off-white, deep navy, generous measure, almost no borders.",
-    type: "Cormorant Garamond / Jost",
-    swatches: ["#f7f4ef", "#141b2b", "#9a8256"],
     scheme: "light",
   },
   {
@@ -103,15 +85,6 @@ export const CONCEPTS: ConceptMeta[] = [
     type: "Chivo / JetBrains Mono",
     swatches: ["#0e1420", "#d7dee8", "#ff8a3d"],
     scheme: "dark",
-  },
-  {
-    id: "10-human-machine",
-    num: "10",
-    name: "Human + Machine",
-    thesis: "Two visual languages in dialogue. Machine is geometric and cool; human is warm and editorial.",
-    type: "Fraunces / JetBrains Mono",
-    swatches: ["#faf7f2", "#1a1714", "#2f6fd0"],
-    scheme: "light",
   },
 ];
 
