@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* ==================================================================
+   ODYSSEY DESIGN LAB — global foundation
+   The lab chrome is deliberately neutral so it never competes with
+   the concept being evaluated.
+   ================================================================== */
+
+:root {
+  --lab-chrome-h: 46px;
+  --lab-bg: #0b0d0f;
+  --lab-fg: #e9ecef;
+  --lab-dim: #7c858e;
+  --lab-line: #242a30;
+  --lab-accent: #e8e4dc;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--lab-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: rgba(120, 160, 200, 0.28); }
+
+/* Concept surfaces get their own scrollbar treatment via tokens */
+.ody-surface { scrollbar-width: thin; }
+.ody-surface ::-webkit-scrollbar { width: 10px; height: 10px; }
+.ody-surface ::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb, rgba(128, 128, 128, 0.32));
+  border-radius: 99px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+.ody-surface ::-webkit-scrollbar-track { background: transparent; }
+
+/* ------------------------------------------------------------------
+   Shared motion vocabulary.
+   Motion communicates: connection, progress, verification, discovery.
+   ------------------------------------------------------------------ */
+
+@keyframes ody-rise {
+  from { opacity: 0; transform: translate3d(0, var(--rise, 10px), 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes ody-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes ody-wipe {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@keyframes ody-draw {
+  from { stroke-dashoffset: var(--dash, 400); }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes ody-grow {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes ody-node {
+  0%   { opacity: 0; transform: scale(0.2); }
+  60%  { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes ody-pulse {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50%      { opacity: 0.7;  transform: scale(1.9); }
+}
+@keyframes ody-travel {
+  from { offset-distance: 0%; opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  to   { offset-distance: 100%; opacity: 0; }
+}
+@keyframes ody-scan {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(900%); }
+}
+@keyframes ody-blink {
+  0%, 45% { opacity: 1; }
+  55%, 100% { opacity: 0.18; }
+}
+
+.ody-rise    { animation: ody-rise 620ms cubic-bezier(0.16, 0.84, 0.32, 1) both; animation-delay: var(--d, 0ms); }
+.ody-fadein  { animation: ody-fade 700ms ease both; animation-delay: var(--d, 0ms); }
+.ody-wipein  { animation: ody-wipe 760ms cubic-bezier(0.22, 0.8, 0.28, 1) both; animation-delay: var(--d, 0ms); }
+.ody-growx   { animation: ody-grow 900ms cubic-bezier(0.22, 0.8, 0.28, 1) both; transform-origin: left center; animation-delay: var(--d, 0ms); }
+.ody-nodein  { animation: ody-node 620ms cubic-bezier(0.2, 1.2, 0.4, 1) both; animation-delay: var(--d, 0ms); transform-box: fill-box; transform-origin: center; }
+.ody-drawin  { stroke-dasharray: var(--dash, 400); animation: ody-draw 1400ms cubic-bezier(0.32, 0.72, 0.2, 1) both; animation-delay: var(--d, 0ms); }
+.ody-beacon  { animation: ody-pulse 2600ms ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ody-blink   { animation: ody-blink 1400ms steps(1, end) infinite; }
+.ody-travel  { animation: ody-travel 3200ms cubic-bezier(0.4, 0, 0.2, 1) 1600ms infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ody-rise, .ody-fadein, .ody-wipein, .ody-growx, .ody-nodein, .ody-drawin, .ody-beacon, .ody-blink, .ody-travel {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* Numeric data should always align in columns. */
+.tnum { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
+
+/* ------------------------------------------------------------------
+   Responsive safety net.
+   Dense clinical tables are the one element that cannot reflow into a
+   phone column without losing the comparison they exist to support, so
+   they scroll horizontally inside their panel instead of pushing the
+   page sideways.
+   ------------------------------------------------------------------ */
+@media (max-width: 860px) {
+  .ody-surface table { display: block; max-width: 100%; overflow-x: auto; }
+  .ody-surface { overflow-x: clip; }
+}
