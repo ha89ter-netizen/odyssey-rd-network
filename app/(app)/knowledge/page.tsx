@@ -2,10 +2,13 @@
 
 import Link from "next/link";
 import { useStore } from "@/store/store";
-import { Panel, Button, Pill, Empty, SectionHead, Disclaimer, Metric, Banner, absTime, relTime } from "@/ui/primitives";
+import { Panel, Button, Pill, Empty, SectionHead, Disclaimer, Metric, Banner, absTime } from "@/ui/primitives";
+import { useI18n, useRelTime } from "@/i18n/i18n";
 
 export default function KnowledgePage() {
   const { state } = useStore();
+  const { t, C } = useI18n();
+  const relTime = useRelTime();
   const contributions = state.contributions;
   const verifiedMatches = Object.values(state.matches).filter((m) => m.status === "verified");
   const corroborated = Object.values(state.cases).filter((c) => c.status === "Clinically Corroborated").length;
@@ -14,48 +17,47 @@ export default function KnowledgePage() {
     <>
       <header className="ody-rise og-between" style={{ alignItems: "flex-end", padding: "6px 4px 0" }}>
         <div style={{ maxWidth: "62ch" }}>
-          <div className="og-eyebrow">Network knowledge</div>
-          <h1 className="og-h1" style={{ marginTop: 12 }}>Knowledge contributions</h1>
+          <div className="og-eyebrow">{t("kn.eyebrow")}</div>
+          <h1 className="og-h1" style={{ marginTop: 12 }}>{t("kn.title")}</h1>
           <p className="og-lede" style={{ marginTop: 10 }}>
-            What two clinicians verified together becomes part of the network record. Not a diagnosis — a documented,
-            corroborated relationship between cases.
+            {t("kn.lede")}
           </p>
         </div>
         <Disclaimer />
       </header>
 
       <div className="og-sec og-grid" data-cols="auto">
-        <Metric label="Verified contributions" value={contributions.length} tone="teal" detail="Corroborated by two clinicians each" />
-        <Metric label="Confirmed connections" value={verifiedMatches.length} detail="Case pairs held as related" />
-        <Metric label="Corroborated cases" value={corroborated} detail="No longer standing alone in the network" />
-        <Metric label="Contributing clinicians" value={new Set(contributions.flatMap((c) => c.contributors)).size} detail="Across member institutions" />
+        <Metric label={t("kn.mContributions")} value={contributions.length} tone="teal" detail={t("kn.mContributionsD")} />
+        <Metric label={t("kn.mConnections")} value={verifiedMatches.length} detail={t("kn.mConnectionsD")} />
+        <Metric label={t("kn.mCases")} value={corroborated} detail={t("kn.mCasesD")} />
+        <Metric label={t("kn.mClinicians")} value={new Set(contributions.flatMap((c) => c.contributors)).size} detail={t("kn.mCliniciansD")} />
       </div>
 
       {contributions.length === 0 ? (
         <div className="og-sec">
           <Panel glass>
             <Empty
-              title="No contributions recorded yet"
-              body="A contribution is created automatically when two clinicians independently verify that a case connection is clinically relevant."
+              title={t("kn.none")}
+              body={t("kn.noneBody")}
               icon="◆"
-              action={<Link href="/matches"><Button>Review potential matches</Button></Link>}
+              action={<Link href="/matches"><Button>{t("kn.reviewMatches")}</Button></Link>}
             />
           </Panel>
         </div>
       ) : (
         <>
           <div className="og-sec">
-            <SectionHead label="How knowledge compounds" note="Each verified connection makes the next case easier to place." />
+            <SectionHead label={t("kn.compoundsTitle")} note={t("kn.compoundsNote")} />
             <Panel glass>
               <div className="og-row" style={{ justifyContent: "center", gap: 0, flexWrap: "wrap", padding: "10px 0" }}>
                 {[
-                  { t: contributions[0].caseIds[0], s: "Unresolved case" },
+                  { t: contributions[0].caseIds[0], s: t("kn.nodeUnresolved") },
                   { t: "+", s: "" },
-                  { t: contributions[0].caseIds[1], s: "Network case" },
+                  { t: contributions[0].caseIds[1], s: t("kn.nodeNetwork") },
                   { t: "↓", s: "" },
-                  { t: "Verified pattern", s: contributions[0].evidence },
+                  { t: t("kn.nodePattern"), s: t("kn.evidenceSignals", { n: contributions[0].caseIds.length ? Number(contributions[0].evidence.match(/\d+/)?.[0] ?? 0) : 0 }) },
                   { t: "↓", s: "" },
-                  { t: "Network knowledge", s: "Available to future queries" },
+                  { t: t("kn.nodeKnowledge"), s: t("kn.nodeKnowledgeD") },
                 ].map((n, i) => (
                   n.t === "+" || n.t === "↓" ? (
                     <span key={i} className="og-num ody-fadein" style={{ fontSize: 20, color: "var(--ink-4)", padding: "0 18px", "--d": `${i * 90}ms` } as React.CSSProperties}>
@@ -70,21 +72,20 @@ export default function KnowledgePage() {
                 ))}
               </div>
               <p className="og-small" style={{ textAlign: "center", marginTop: 14, maxWidth: "64ch", marginInline: "auto" }}>
-                This verified pattern may help surface future relevant cases. It is a prototype representation of the
-                network-learning idea — it does not claim to improve diagnostic accuracy.
+                {t("kn.compoundsDisclaimer")}
               </p>
             </Panel>
           </div>
 
           <div className="og-sec">
-            <SectionHead label="Contributions" note={`${contributions.length} recorded`} />
+            <SectionHead label={t("kn.contributions")} note={t("kn.recorded", { n: contributions.length })} />
             <div className="og-stack">
               {contributions.map((c) => (
-                <Panel key={c.id} title={c.title} action={<Pill tone="teal">✓ {c.status}</Pill>}>
+                <Panel key={c.id} title={t("kn.title1")} action={<Pill tone="teal">✓ {t("match.status.verified")}</Pill>}>
                   <div className="og-grid" data-cols="side">
                     <div>
                       <dl className="og-kv">
-                        <dt>Cases</dt>
+                        <dt>{t("kn.fCases")}</dt>
                         <dd>
                           {c.caseIds.map((cid, i) => (
                             <span key={cid}>
@@ -93,15 +94,16 @@ export default function KnowledgePage() {
                             </span>
                           ))}
                         </dd>
-                        <dt>Contributors</dt><dd>{c.contributors.join(" · ")}</dd>
-                        <dt>Evidence</dt><dd>{c.evidence}</dd>
-                        <dt>Recorded</dt><dd className="og-mono">{absTime(c.createdAt)} <span className="og-small">({relTime(c.createdAt, state.clock)})</span></dd>
+                        <dt>{t("kn.fContributors")}</dt><dd>{c.contributors.map((n) => C(n)).join(" · ")}</dd>
+                        <dt>{t("kn.fEvidence")}</dt><dd>{t("kn.evidenceSignals", { n: Number(c.evidence.match(/\d+/)?.[0] ?? 0) })}</dd>
+                        <dt>{t("kn.fRecorded")}</dt><dd className="og-mono">{absTime(c.createdAt)} <span className="og-small">({relTime(c.createdAt, state.clock)})</span></dd>
                       </dl>
                     </div>
                     <div>
-                      <div className="og-eyebrow">What was established</div>
+                      <div className="og-eyebrow">{t("kn.established")}</div>
                       <ul style={{ margin: "10px 0 0", paddingLeft: 18, fontSize: 13, lineHeight: 1.75, color: "var(--ink-2)" }}>
-                        {c.detail.map((d, i) => <li key={i} style={{ marginBottom: 5 }}>{d}</li>)}
+                        <li style={{ marginBottom: 5 }}>{t("kn.detailShared", { n: Number(c.evidence.match(/\d+/)?.[0] ?? 0), a: c.caseIds[0], b: c.caseIds[1] })}</li>
+                        {c.detail.slice(2).map((d, i) => <li key={i} style={{ marginBottom: 5 }}>{d}</li>)}
                       </ul>
                     </div>
                   </div>
@@ -114,8 +116,7 @@ export default function KnowledgePage() {
 
       <div className="og-sec">
         <Banner tone="amber">
-          <b>Clinically corroborated does not mean diagnosed.</b> It records that two independent clinicians reviewed
-          the evidence and agreed the connection between the cases is real and worth keeping.
+          <b>{t("kn.notDiagnosed")}</b> {t("kn.notDiagnosedBody")}
         </Banner>
       </div>
     </>

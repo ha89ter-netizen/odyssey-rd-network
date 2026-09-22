@@ -6,17 +6,20 @@ import { useParams } from "next/navigation";
 import { useStore } from "@/store/store";
 import {
   Panel, Button, Pill, Empty, Banner, Disclaimer, Tabs, StepBar, Modal, Field,
-  useToast, relTime, absTime, Avatar, ScoreBar,
+  useToast, absTime, Avatar, ScoreBar,
 } from "@/ui/primitives";
+import { useI18n, useRelTime } from "@/i18n/i18n";
 import { TrajectoryChart } from "@/components/kit";
 import { buildComparison } from "@/lib/compare";
 
 type EvTab = "summary" | "phenotype" | "timeline" | "documents";
-const STAGES = ["Match proposed", "Evidence review", "Joint assessment", "Verification", "Confirmed connection"];
+const STAGE_KEYS = ["co.stage1", "co.stage2", "co.stage3", "co.stage4", "co.stage5"] as const;
 
 export default function CollaborationRoomPage() {
   const { id } = useParams<{ id: string }>();
   const { state, dispatch } = useStore();
+  const { t, C, P } = useI18n();
+  const relTime = useRelTime();
   const toast = useToast();
   const [tab, setTab] = React.useState<EvTab>("summary");
   const [draft, setDraft] = React.useState("");
@@ -29,7 +32,7 @@ export default function CollaborationRoomPage() {
     threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" });
   }, [col?.messages.length]);
 
-  if (!col) return <Empty title="Room not found" body="This collaboration is not part of the current demonstration state." action={<Link href="/collaboration"><Button>All rooms</Button></Link>} />;
+  if (!col) return <Empty title={t("co.notFound")} body={t("co.notFoundBody")} action={<Link href="/collaboration"><Button>{t("co.allRooms")}</Button></Link>} />;
 
   const me = state.currentDoctorId!;
   const a = state.cases[col.caseAId];
@@ -48,19 +51,19 @@ export default function CollaborationRoomPage() {
   };
 
   const submitVerification = () => {
-    dispatch({ type: "verifyRelevance", collaborationId: col.id, notes: notes.trim() || "Clinical relevance confirmed on the evidence presented." });
+    dispatch({ type: "verifyRelevance", collaborationId: col.id, notes: notes.trim() || t("co.defaultNote") });
     setVerifying(false);
     setNotes("");
     toast({
-      title: "Clinical relevance confirmed",
-      body: col.verifications.length >= 1 ? "Both clinicians have verified — a knowledge contribution has been recorded." : "The second clinician has been asked to verify.",
+      title: t("co.verifiedToast"),
+      body: col.verifications.length >= 1 ? t("co.verifiedToastBoth") : t("co.verifiedToastOne"),
     });
   };
 
-  const groups = buildComparison(a, b);
-  const phenotypeRows = groups.find((g) => g.group === "Phenotype")?.rows ?? [];
+  const groups = buildComparison(a, b, { t, C });
+  const phenotypeRows = groups.find((g) => g.group === t("grp.Phenotype"))?.rows ?? [];
   const keys = ["hypotonia", "developmentalDelay", "plateau", "seizureOnset", "regression", "imagingChange"];
-  const labels = ["Hypotonia", "Developmental delay", "Plateau", "Seizure onset", "Regression", "Imaging change"];
+  const labels = keys.map((k) => t(`ms.${k}` as "ms.hypotonia"));
   const av = keys.map((k) => a.milestones[k] ?? 0);
   const bv = keys.map((k) => b.milestones[k] ?? 0);
   const plottable = av.every((v) => v > 0) && bv.every((v) => v > 0);
@@ -70,15 +73,15 @@ export default function CollaborationRoomPage() {
       <header className="ody-rise og-between" style={{ alignItems: "flex-start", padding: "6px 4px 0" }}>
         <div>
           <div className="og-row" style={{ gap: 10 }}>
-            <Link href="/collaboration" className="og-small og-link">Collaboration</Link>
+            <Link href="/collaboration" className="og-small og-link">{t("nav.collaboration")}</Link>
             <span className="og-small" aria-hidden>/</span>
             <span className="og-small og-mono">{col.id.slice(0, 11)}</span>
           </div>
           <h1 className="og-h1" style={{ marginTop: 12 }}>{a.id} ↔ {b.id}</h1>
           <div className="og-row" style={{ gap: 10, marginTop: 12 }}>
-            <Pill tone="teal">◈ End-to-end encrypted</Pill>
-            <Pill>Opened {relTime(col.openedAt, state.clock)}</Pill>
-            <Pill>Audit log immutable</Pill>
+            <Pill tone="teal">◈ {t("co.encrypted")}</Pill>
+            <Pill>{t("co.openedAgo", { t: relTime(col.openedAt, state.clock) })}</Pill>
+            <Pill>{t("co.auditImmutable")}</Pill>
           </div>
         </div>
         <div className="og-row" style={{ justifyContent: "flex-end", alignItems: "flex-start" }}>
@@ -88,8 +91,8 @@ export default function CollaborationRoomPage() {
               <div className="og-row" style={{ gap: 11 }}>
                 <Avatar initials={d.initials} side={i === 0 ? "a" : "b"} />
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700 }}>{d.name}{d.id === me ? " (you)" : ""}</div>
-                  <div className="og-small">{d.city}, {d.country}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{C(d.name)}{d.id === me ? ` ${t("co.you")}` : ""}</div>
+                  <div className="og-small">{C(d.city)}, {C(d.country)}</div>
                 </div>
               </div>
             </div>
@@ -98,15 +101,14 @@ export default function CollaborationRoomPage() {
       </header>
 
       <div className="og-sec">
-        <Panel glass><StepBar stages={STAGES} index={col.stageIndex} /></Panel>
+        <Panel glass><StepBar stages={STAGE_KEYS.map((k) => t(k))} index={col.stageIndex} /></Panel>
       </div>
 
       {bothVerified && (
         <div className="og-sec">
           <Banner>
-            <b>Clinically corroborated.</b> Both clinicians verified that this connection is clinically meaningful.
-            A knowledge contribution has been recorded in the network.{" "}
-            <Link href="/knowledge" className="og-link">View it</Link>
+            <b>{t("co.corroboratedBanner")}</b> {t("co.corroboratedBody")}{" "}
+            <Link href="/knowledge" className="og-link">{t("co.viewIt")}</Link>
           </Banner>
         </div>
       )}
@@ -116,10 +118,10 @@ export default function CollaborationRoomPage() {
         <div>
           <Tabs
             tabs={[
-              { id: "summary", label: "Case summary" },
-              { id: "phenotype", label: "Phenotype comparison" },
-              { id: "timeline", label: "Timeline comparison" },
-              { id: "documents", label: "Documents" },
+              { id: "summary", label: t("co.tabSummary") },
+              { id: "phenotype", label: t("co.tabPhenotype") },
+              { id: "timeline", label: t("co.tabTimeline") },
+              { id: "documents", label: t("co.tabDocuments") },
             ]}
             value={tab}
             onChange={setTab}
@@ -131,33 +133,32 @@ export default function CollaborationRoomPage() {
                   <div key={c.id} style={{ paddingBottom: 14, borderBottom: i === 0 ? "1px solid var(--line)" : undefined }}>
                     <div className="og-between">
                       <Link href={`/cases/${c.id}`} className="og-mono og-link" style={{ fontSize: 14, fontWeight: 700 }}>{c.id}</Link>
-                      <Pill tone={i === 1 ? "teal" : undefined}>{c.country}</Pill>
+                      <Pill tone={i === 1 ? "teal" : undefined}>{C(c.country)}</Pill>
                     </div>
-                    <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)", marginTop: 8 }}>{c.headline}</p>
-                    <div className="og-small">{c.institution} · {c.ageGroup} · {c.status}</div>
+                    <p style={{ fontSize: 13, lineHeight: 1.7, color: "var(--ink-2)", marginTop: 8 }}>{C(c.headline)}</p>
+                    <div className="og-small">{C(c.institution)} · {C(c.ageGroup)} · {t(`status.${c.status}` as "status.Unresolved")}</div>
                   </div>
                 ))}
                 {match && (
                   <div>
-                    <div className="og-eyebrow">Evidence similarity</div>
+                    <div className="og-eyebrow">{t("co.evidenceSimilarity")}</div>
                     <div className="og-row" style={{ gap: 14, marginTop: 8 }}>
                       <span className="og-num" style={{ fontSize: 30, color: "var(--teal-deep)" }}>{match.score}</span>
                       <span className="og-small" style={{ maxWidth: "36ch" }}>
-                        {match.label} · {match.dimensions.filter((d) => d.direction === "supporting").length} of {match.dimensions.length} groups concordant.
-                        Not a diagnosis.
+                        {t("co.similarityLine", { label: t(match.labelKey as "match.label.strong"), n: match.dimensions.filter((d) => d.direction === "supporting").length, total: match.dimensions.length })}
                       </span>
                     </div>
                     <div className="og-stack" style={{ marginTop: 14 }}>
                       {match.dimensions.map((d) => (
                         <div key={d.id} style={{ display: "grid", gridTemplateColumns: "1fr 54px 34px", gap: 12, alignItems: "center" }}>
-                          <span style={{ fontSize: 12.5 }}>{d.label}</span>
+                          <span style={{ fontSize: 12.5 }}>{t(d.labelKey as "dim.phenotype")}</span>
                           <ScoreBar value={d.score} tone={d.direction === "divergent" ? "amber" : "teal"} />
                           <span className="og-mono og-small" style={{ textAlign: "right" }}>{d.score}</span>
                         </div>
                       ))}
                     </div>
                     <div style={{ marginTop: 16 }}>
-                      <Link href={`/matches/${match.id}/compare`} className="og-small og-link">Open full comparison →</Link>
+                      <Link href={`/matches/${match.id}/compare`} className="og-small og-link">{t("co.openFullComparison")}</Link>
                     </div>
                   </div>
                 )}
@@ -166,13 +167,13 @@ export default function CollaborationRoomPage() {
 
             {tab === "phenotype" && (
               <table className="og-table">
-                <thead><tr><th>Term</th><th>{a.id}</th><th>{b.id}</th></tr></thead>
+                <thead><tr><th>{t("case.colTerm")}</th><th>{a.id}</th><th>{b.id}</th></tr></thead>
                 <tbody>
                   {phenotypeRows.map((r, i) => (
                     <tr key={r.label + i}>
                       <td style={{ fontWeight: 600 }}>{r.label}</td>
-                      <td className="og-small" style={{ color: r.a === "Not recorded" ? "var(--ink-4)" : undefined }}>{r.a}</td>
-                      <td className="og-small" style={{ color: r.b === "Not recorded" ? "var(--ink-4)" : r.agreement === "only-b" ? "var(--teal-deep)" : undefined }}>{r.b}</td>
+                      <td className="og-small" style={{ color: r.a === t("common.notRecorded") ? "var(--ink-4)" : undefined }}>{r.a}</td>
+                      <td className="og-small" style={{ color: r.b === t("common.notRecorded") ? "var(--ink-4)" : r.agreement === "only-b" ? "var(--teal-deep)" : undefined }}>{r.b}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -188,27 +189,24 @@ export default function CollaborationRoomPage() {
                   <div className="og-row" style={{ gap: 18, marginTop: 10 }}>
                     <span className="og-small">● {a.id}</span>
                     <span className="og-small" style={{ color: "var(--teal-deep)" }}>● {b.id}</span>
-                    <span className="og-small" style={{ marginLeft: "auto" }}>Months from birth</span>
+                    <span className="og-small" style={{ marginLeft: "auto" }}>{t("cmp.monthsFromBirth")}</span>
                   </div>
                 </>
-              ) : <p className="og-small">Not enough milestone data in both cases to plot a trajectory.</p>
+              ) : <p className="og-small">{t("cmp.notPlottable")}</p>
             )}
 
             {tab === "documents" && (
               <div className="og-stack">
-                {col.documents.map((d) => (
-                  <div key={d.label} className="og-flat" style={{ padding: "12px 14px" }}>
+                {col.documents.map((d, i) => (
+                  <div key={i} className="og-flat" style={{ padding: "12px 14px" }}>
                     <div className="og-between">
-                      <span className="og-mono" style={{ fontSize: 12.5 }}>{d.label}</span>
-                      <Pill>{d.kind}</Pill>
+                      <span className="og-mono" style={{ fontSize: 12.5 }}>{t(d.labelKey as "co.docSignals", d.labelParams)}</span>
+                      <Pill>{t(d.kindKey as "co.kindComparison")}</Pill>
                     </div>
-                    <div className="og-small" style={{ marginTop: 4 }}>{d.meta}</div>
+                    <div className="og-small" style={{ marginTop: 4 }}>{t(d.metaKey as "co.docSignalsMeta", d.metaParams)}</div>
                   </div>
                 ))}
-                <p className="og-small" style={{ margin: 0 }}>
-                  Only structured summaries are exchanged. Source documents, images and sequence files remain at the
-                  originating institution.
-                </p>
+                <p className="og-small" style={{ margin: 0 }}>{t("co.docsNote")}</p>
               </div>
             )}
           </Panel>
@@ -216,15 +214,15 @@ export default function CollaborationRoomPage() {
 
         {/* ------------------------- discussion & decisions ------------------------- */}
         <div className="og-stack">
-          <Panel title="Clinical discussion" meta="No identifiable patient data is exchanged in this room" padded={false}>
+          <Panel title={t("co.discussion")} meta={t("co.discussionMeta")} padded={false}>
             <div ref={threadRef} style={{ maxHeight: 420, overflowY: "auto", padding: "4px 18px" }}>
               {col.messages.map((msg) => {
                 if (msg.author === "system") {
                   return (
                     <div key={msg.id} className="og-msg" data-side="system">
                       <div>
-                        <div className="og-eyebrow">System · {relTime(msg.at, state.clock)}</div>
-                        <p className="og-small" style={{ margin: "6px 0 0" }}>{msg.body}</p>
+                        <div className="og-eyebrow">{t("co.system")} · {relTime(msg.at, state.clock)}</div>
+                        <p className="og-small" style={{ margin: "6px 0 0" }}>{msg.bodyKey ? t(msg.bodyKey as "co.roomOpened", msg.bodyParams) : msg.body}</p>
                       </div>
                     </div>
                   );
@@ -235,7 +233,7 @@ export default function CollaborationRoomPage() {
                     <Avatar initials={d.initials} side={msg.author === "doc-a" ? "a" : "b"} />
                     <div>
                       <div className="og-row" style={{ gap: 10 }}>
-                        <span style={{ fontSize: 13, fontWeight: 700 }}>{d.name}{d.id === me ? " (you)" : ""}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{C(d.name)}{d.id === me ? ` ${t("co.you")}` : ""}</span>
                         <span className="og-small">{d.countryCode}</span>
                         <span className="og-mono og-small" style={{ marginLeft: "auto" }}>{relTime(msg.at, state.clock)}</span>
                       </div>
@@ -251,30 +249,30 @@ export default function CollaborationRoomPage() {
                   <textarea
                     className="og-textarea"
                     style={{ minHeight: 62, flex: "1 1 220px", width: "auto" }}
-                    placeholder="Write a clinical note…"
+                    placeholder={t("co.writeNote")}
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(); }}
                   />
-                  <Button onClick={send} disabled={!draft.trim()}>Send</Button>
+                  <Button onClick={send} disabled={!draft.trim()}>{t("common.send")}</Button>
                 </div>
               ) : (
-                <p className="og-small" style={{ margin: 0 }}>You are not a participant in this room.</p>
+                <p className="og-small" style={{ margin: 0 }}>{t("co.notParticipant")}</p>
               )}
-              {iAmParticipant && <div className="og-small" style={{ marginTop: 8 }}>⌘↵ to send</div>}
+              {iAmParticipant && <div className="og-small" style={{ marginTop: 8 }}>{t("co.toSend")}</div>}
             </div>
           </Panel>
 
-          <Panel glass title="Verification status" action={<Pill tone={bothVerified ? "teal" : "amber"}>{col.verifications.length} of 2</Pill>}>
+          <Panel glass title={t("co.verificationStatus")} action={<Pill tone={bothVerified ? "teal" : "amber"}>{t("co.verifiedOf", { n: col.verifications.length })}</Pill>}>
             {[docA, docB].map((d) => {
               const v = col.verifications.find((x) => x.by === d.id);
               return (
                 <div key={d.id} style={{ display: "flex", gap: 11, padding: "11px 0", borderBottom: "1px solid var(--line)" }}>
                   <span style={{ color: v ? "var(--teal-deep)" : "var(--amber)" }}>{v ? "✓" : "○"}</span>
                   <div>
-                    <div style={{ fontSize: 13 }}>{v ? `Confirmed by ${d.name}` : `Pending — ${d.name}`}</div>
+                    <div style={{ fontSize: 13 }}>{v ? t("co.confirmedBy", { name: C(d.name) }) : t("co.pendingBy", { name: C(d.name) })}</div>
                     <div className="og-small" style={{ marginTop: 3 }}>
-                      {v ? v.notes : "Awaiting assessment of clinical relevance"}
+                      {v ? v.notes : t("co.awaitingAssessment")}
                     </div>
                     {v && <div className="og-small og-mono" style={{ marginTop: 3 }}>{absTime(v.at)}</div>}
                   </div>
@@ -282,29 +280,27 @@ export default function CollaborationRoomPage() {
               );
             })}
             <p className="og-small" style={{ marginTop: 12 }}>
-              A connection enters the network record only when two independent clinicians verify it. Verifying confirms
-              that the <b>case connection</b> is clinically relevant — it is not a diagnosis for either patient.
+              {t("co.twoRequired")}
             </p>
             {iAmParticipant && !myVerification && (
-              <Button block style={{ marginTop: 14 }} onClick={() => setVerifying(true)}>Verify clinical relevance</Button>
+              <Button block style={{ marginTop: 14 }} onClick={() => setVerifying(true)}>{t("co.verifyBtn")}</Button>
             )}
             {myVerification && !bothVerified && (
               <Banner tone="amber">
-                You have verified. Switch clinician in the header and verify as {me === col.doctorAId ? docB.name : docA.name} to
-                complete the demonstration.
+                {t("co.youVerified", { name: C(me === col.doctorAId ? docB.name : docA.name) })}
               </Banner>
             )}
           </Panel>
 
-          <Panel title="Decision log" meta="Immutable" padded={false}>
+          <Panel title={t("co.decisionLog")} meta={t("co.immutable")} padded={false}>
             {col.decisionLog.map((d) => (
               <div key={d.id} className="og-listrow" style={{ gridTemplateColumns: "18px 1fr auto" }}>
                 <span style={{ color: d.state === "done" ? "var(--teal-deep)" : d.state === "pending" ? "var(--amber)" : "var(--ink-4)", fontSize: 11 }}>
                   {d.state === "done" ? "■" : "□"}
                 </span>
                 <span>
-                  <span style={{ display: "block", fontSize: 12.5, color: d.state === "blocked" ? "var(--ink-4)" : undefined }}>{d.action}</span>
-                  <span className="og-small">{d.actor}</span>
+                  <span style={{ display: "block", fontSize: 12.5, color: d.state === "blocked" ? "var(--ink-4)" : undefined }}>{t(d.actionKey as "co.decVerify")}</span>
+                  <span className="og-small">{d.actorKey ? t(d.actorKey as "co.network") : C(d.actor ?? "")}</span>
                 </span>
                 <span className="og-mono og-small">{d.at ? relTime(d.at, state.clock) : "—"}</span>
               </div>
@@ -316,18 +312,17 @@ export default function CollaborationRoomPage() {
       <Modal
         open={verifying}
         onClose={() => setVerifying(false)}
-        title="Verify clinical relevance"
-        footer={<><Button variant="ghost" onClick={() => setVerifying(false)}>Cancel</Button><Button onClick={submitVerification}>Confirm clinical relevance</Button></>}
+        title={t("co.verifyTitle")}
+        footer={<><Button variant="ghost" onClick={() => setVerifying(false)}>{t("common.cancel")}</Button><Button onClick={submitVerification}>{t("co.verifyConfirm")}</Button></>}
       >
         <Banner tone="amber">
-          <b>This is not a diagnosis.</b> You are confirming that the connection between {a.id} and {b.id} is
-          clinically meaningful and worth recording — not that either patient has a particular disease.
+          <b>{t("co.verifyWarn")}</b> {t("co.verifyWarnBody", { a: a.id, b: b.id })}
         </Banner>
         <div style={{ marginTop: 16 }}>
-          <Field label="Verification notes" hint="Recorded permanently in the decision log and the knowledge contribution.">
+          <Field label={t("co.verifyNotes")} hint={t("co.verifyNotesHint")}>
             <textarea
               className="og-textarea" rows={4}
-              placeholder="e.g. The shared variant, identical imaging pattern and matched trajectory make a common mechanism likely. Targeted re-analysis is justified."
+              placeholder={t("co.verifyPh")}
               value={notes} onChange={(e) => setNotes(e.target.value)}
             />
           </Field>

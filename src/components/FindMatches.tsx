@@ -4,23 +4,20 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button, Modal } from "@/ui/primitives";
 import { useStore } from "@/store/store";
+import { useI18n } from "@/i18n/i18n";
 import type { CaseRecord } from "@/store/types";
 
-const STAGES = [
-  { label: "Normalising structured signals", detail: "Phenotype terms mapped to HPO; variants to HGVS" },
-  { label: "Dispatching federated query", detail: "Member institutions evaluate locally — no identifiable data is transmitted" },
-  { label: "Screening candidate records", detail: "Every case in the network is scored against yours" },
-  { label: "Ranking by evidence similarity", detail: "Candidates below the review threshold are discarded" },
-];
+const STAGES = [1, 2, 3, 4] as const;
 
 /**
  * Runs the simulated federated search. The staged progress is theatre for the
  * demo; the matching itself is synchronous and deterministic.
  */
-export function FindMatches({ record, label = "Find matches", variant = "solid" }: {
+export function FindMatches({ record, label, variant = "solid" }: {
   record: CaseRecord; label?: string; variant?: "solid" | "ghost";
 }) {
   const { state, dispatch } = useStore();
+  const { t } = useI18n();
   const router = useRouter();
   const [running, setRunning] = React.useState(false);
   const [stage, setStage] = React.useState(0);
@@ -50,23 +47,20 @@ export function FindMatches({ record, label = "Find matches", variant = "solid" 
   return (
     <>
       <Button variant={variant} onClick={start} disabled={running}>
-        {running ? "Searching…" : label}
+        {running ? t("search.searching") : (label ?? t("case.findMatches"))}
       </Button>
 
-      <Modal open={running} onClose={() => { /* deliberately not dismissible mid-query */ }} title="Searching the network">
-        <p className="og-small" style={{ marginTop: 0 }}>
-          Case <b className="og-mono">{record.id}</b> is being compared against {cohorts} records held across member
-          institutions. <b>SIMULATED MATCHING ENGINE</b> — deterministic, and running entirely in your browser.
-        </p>
+      <Modal open={running} onClose={() => { /* deliberately not dismissible mid-query */ }} title={t("search.title")}>
+        <p className="og-small" style={{ marginTop: 0 }}>{t("search.intro", { id: record.id, n: cohorts })}</p>
         <div className="og-stack" style={{ marginTop: 18 }}>
-          {STAGES.map((s, i) => (
-            <div key={s.label} style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, opacity: i <= stage ? 1 : 0.35 }}>
+          {STAGES.map((n, i) => (
+            <div key={n} style={{ display: "grid", gridTemplateColumns: "20px 1fr", gap: 12, opacity: i <= stage ? 1 : 0.35 }}>
               <span style={{ color: i < stage ? "var(--teal-deep)" : "var(--ink-3)", fontSize: 12 }}>
                 {i < stage ? "✓" : i === stage ? "◔" : "○"}
               </span>
               <div>
-                <div style={{ fontSize: 13, fontWeight: i === stage ? 700 : 500 }}>{s.label}</div>
-                <div className="og-small" style={{ marginTop: 2 }}>{s.detail}</div>
+                <div style={{ fontSize: 13, fontWeight: i === stage ? 700 : 500 }}>{t(`search.s${n}` as "search.s1")}</div>
+                <div className="og-small" style={{ marginTop: 2 }}>{t(`search.s${n}d` as "search.s1d")}</div>
               </div>
             </div>
           ))}

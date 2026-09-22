@@ -14,6 +14,7 @@ const btn = async (n) => { const x = page.getByRole("button", { name: n, exact: 
 await page.goto(`${BASE}/enter`, { waitUntil: "networkidle" });
 await btn("Enter demo as");
 await page.waitForTimeout(600);
+
 await page.goto(`${BASE}/cases/ODY-001`, { waitUntil: "networkidle" });
 await btn("Find matches");
 await page.waitForURL("**/matches", { timeout: 15000 });
@@ -47,6 +48,11 @@ await btn("Verify clinical relevance");
 await page.locator("textarea").first().fill("Agreed. Targeted re-analysis of our genome data is warranted.");
 await btn("Confirm clinical relevance");
 await page.waitForTimeout(1000);
+
+if (process.env.LANG_RU) {
+  await page.getByRole("button", { name: "РУ", exact: true }).first().click();
+  await page.waitForTimeout(800);
+}
 
 const targets = process.argv.slice(2);
 for (const t of targets) {

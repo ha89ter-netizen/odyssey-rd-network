@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { DISCLAIMER } from "@/data/odyssey";
+import { useI18n } from "@/i18n/i18n";
 
 export const cx = (...p: (string | false | null | undefined)[]) => p.filter(Boolean).join(" ");
 
@@ -147,7 +147,8 @@ export function Empty({ title, body, action, icon = "◎" }: { title: string; bo
 }
 
 export function Disclaimer({ style }: { style?: React.CSSProperties }) {
-  return <span className="og-disclaimer" style={style}>◆ {DISCLAIMER}</span>;
+  const { t } = useI18n();
+  return <span className="og-disclaimer" style={style}>◆ {t("common.disclaimer")}</span>;
 }
 
 export function Banner({ tone, children }: { tone?: "amber" | "plain"; children: React.ReactNode }) {

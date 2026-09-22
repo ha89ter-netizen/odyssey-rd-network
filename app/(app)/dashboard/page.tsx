@@ -6,12 +6,15 @@ import {
   useStore, selectCasesOf, selectUnresolved, selectOpenMatches, selectVerificationTasks,
   selectCollaborationsOf, selectNotificationsOf, completenessOverall,
 } from "@/store/store";
-import { Panel, SectionHead, Metric, Pill, Button, ScoreBar, Empty, relTime, Banner } from "@/ui/primitives";
+import { Panel, SectionHead, Metric, Pill, Button, ScoreBar, Empty, Banner } from "@/ui/primitives";
+import { useI18n, useRelTime } from "@/i18n/i18n";
 import { WorldMap } from "@/components/kit";
-import { networkNodes, networkEdges, PRODUCT } from "@/data/odyssey";
+import { networkNodes, networkEdges } from "@/data/odyssey";
 
 export default function DashboardPage() {
   const { state } = useStore();
+  const { t, C } = useI18n();
+  const relTime = useRelTime();
   const id = state.currentDoctorId!;
   const doctor = state.doctors[id];
 
@@ -26,38 +29,44 @@ export default function DashboardPage() {
   const recent = [...cases].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6);
   const pending = [
     ...openMatches.map((m) => ({
-      key: m.id, href: `/matches/${m.id}`, label: `Review potential match — ${m.sourceCaseId} ↔ ${m.targetCaseId}`,
-      meta: `${m.label} · similarity ${m.score}`, tone: "teal" as const,
+      key: m.id, href: `/matches/${m.id}`,
+      label: t("dash.reviewMatch", { a: m.sourceCaseId, b: m.targetCaseId }),
+      meta: t("dash.similarity", { label: t(m.labelKey as "match.label.strong"), n: m.score }),
+      tone: "teal" as const,
     })),
-    ...tasks.map((t) => ({ key: t.href + t.label, href: t.href, label: t.label, meta: t.kind === "request" ? "Awaiting your response" : "Awaiting your verification", tone: "amber" as const })),
+    ...tasks.map((task) => ({
+      key: task.href + task.label, href: task.href, label: task.label,
+      meta: task.kind === "request" ? t("dash.awaitingResponse") : t("dash.awaitingVerification"),
+      tone: "amber" as const,
+    })),
   ];
 
   return (
     <>
       <header className="ody-rise og-between" style={{ alignItems: "flex-end", padding: "6px 4px 0" }}>
         <div>
-          <div className="og-eyebrow">{doctor.institution} · {doctor.city}</div>
-          <h1 className="og-h1" style={{ marginTop: 12 }}>Good morning, {doctor.name}</h1>
+          <div className="og-eyebrow">{C(doctor.institution)} · {C(doctor.city)}</div>
+          <h1 className="og-h1" style={{ marginTop: 12 }}>{t("dash.greeting", { name: C(doctor.name) })}</h1>
           <p className="og-lede" style={{ marginTop: 10 }}>
-            {unresolved.length} of your cases are unresolved.{" "}
+            {t("dash.unresolvedLine", { n: unresolved.length })}{" "}
             {openMatches.length > 0
-              ? `${openMatches.length} potential ${openMatches.length === 1 ? "match is" : "matches are"} waiting for your review.`
-              : "Run a federated search on a case to look for related records across the network."}
+              ? t("dash.matchesWaiting", { n: openMatches.length })
+              : t("dash.noMatchesLine")}
           </p>
         </div>
-        <Link href="/cases/new"><Button>+ New case</Button></Link>
+        <Link href="/cases/new"><Button>{t("nav.newCase")}</Button></Link>
       </header>
 
       <div className="og-sec og-grid" data-cols="auto">
-        <Metric href="/cases" label="Unresolved cases" value={unresolved.length} detail="No confirmed molecular or clinical diagnosis" />
-        <Metric href="/matches" label="Potential matches" value={openMatches.length} tone="teal" detail="Awaiting your clinical review" />
-        <Metric href="/matches" label="Verification requests" value={tasks.length} tone={tasks.length ? "amber" : undefined} detail="Colleagues requesting your assessment" />
-        <Metric href="/collaboration" label="Active collaborations" value={collabs.length} detail="Secure cross-border rooms" />
+        <Metric href="/cases" label={t("dash.mUnresolved")} value={unresolved.length} detail={t("dash.mUnresolvedD")} />
+        <Metric href="/matches" label={t("dash.mMatches")} value={openMatches.length} tone="teal" detail={t("dash.mMatchesD")} />
+        <Metric href="/matches" label={t("dash.mVerification")} value={tasks.length} tone={tasks.length ? "amber" : undefined} detail={t("dash.mVerificationD")} />
+        <Metric href="/collaboration" label={t("dash.mCollab")} value={collabs.length} detail={t("dash.mCollabD")} />
       </div>
 
       {pending.length > 0 && (
         <section className="og-sec">
-          <SectionHead label="Pending actions" note="Everything here is waiting on a decision from you." />
+          <SectionHead label={t("dash.pending")} note={t("dash.pendingNote")} />
           <Panel glass padded={false}>
             {pending.map((p) => (
               <Link key={p.key} href={p.href} className="og-listrow" style={{ gridTemplateColumns: "10px 1fr auto" }}>
@@ -76,21 +85,21 @@ export default function DashboardPage() {
       <div className="og-sec og-grid" data-cols="side">
         <section>
           <SectionHead
-            label="Recent cases"
-            note={`${cases.length} case${cases.length === 1 ? "" : "s"} in your care`}
-            action={<Link href="/cases" className="og-small og-link">View all</Link>}
+            label={t("dash.recentCases")}
+            note={t("dash.casesInCare", { n: cases.length })}
+            action={<Link href="/cases" className="og-small og-link">{t("common.viewAll")}</Link>}
           />
           <Panel padded={false}>
             {recent.length === 0 ? (
-              <Empty title="No cases yet" body="Create your first case to begin structuring it for the network." action={<Link href="/cases/new"><Button>Create a case</Button></Link>} />
+              <Empty title={t("dash.noCases")} body={t("dash.noCasesBody")} action={<Link href="/cases/new"><Button>{t("dash.createCase")}</Button></Link>} />
             ) : recent.map((c) => (
               <Link key={c.id} href={`/cases/${c.id}`} className="og-listrow" style={{ gridTemplateColumns: "84px 1fr 180px 116px" }}>
                 <span className="og-mono" style={{ fontSize: 12.5, color: c.status === "Clinically Corroborated" ? "var(--teal-deep)" : "var(--ink)" }}>{c.id}</span>
                 <span>
-                  <span style={{ display: "block", fontSize: 13 }}>{c.headline}</span>
-                  <span className="og-small">{c.ageGroup} · {c.phenotypeCluster} · updated {relTime(c.updatedAt, now)}</span>
+                  <span style={{ display: "block", fontSize: 13 }}>{C(c.headline)}</span>
+                  <span className="og-small">{C(c.ageGroup)} · {C(c.phenotypeCluster)} · {t("cases.updated", { t: relTime(c.updatedAt, now) })}</span>
                 </span>
-                <Pill tone={c.status === "Clinically Corroborated" ? "teal" : c.status === "Match proposed" ? "ice" : undefined}>{c.status === "Clinically Corroborated" ? "Corroborated" : c.status}</Pill>
+                <Pill tone={c.status === "Clinically Corroborated" ? "teal" : c.status === "Match proposed" ? "ice" : undefined}>{c.status === "Clinically Corroborated" ? t("status.CorroboratedShort") : t(`status.${c.status}` as "status.Unresolved")}</Pill>
                 <span style={{ display: "flex", alignItems: "center", gap: 9 }}>
                   <ScoreBar value={completenessOverall(c)} />
                   <span className="og-mono og-small">{completenessOverall(c)}</span>
@@ -101,39 +110,37 @@ export default function DashboardPage() {
         </section>
 
         <div className="og-stack">
-          <Panel title="Potential matches" action={<Link href="/matches" className="og-small og-link">All</Link>} padded={false}>
+          <Panel title={t("dash.mMatches")} action={<Link href="/matches" className="og-small og-link">{t("common.all")}</Link>} padded={false}>
             {openMatches.length === 0 ? (
               <div style={{ padding: "18px 18px 22px" }}>
-                <p className="og-small" style={{ margin: 0 }}>
-                  No matches are waiting. Open a case and run <b>Find matches</b> to query the network.
-                </p>
+                <p className="og-small" style={{ margin: 0 }}>{t("dash.noMatchesWaiting")}</p>
               </div>
             ) : openMatches.slice(0, 4).map((m) => (
               <Link key={m.id} href={`/matches/${m.id}`} className="og-listrow" style={{ gridTemplateColumns: "1fr auto" }}>
                 <span>
                   <span style={{ display: "block", fontSize: 13, fontWeight: 700 }}>{m.sourceCaseId} ↔ {m.targetCaseId}</span>
-                  <span className="og-small">{state.cases[m.targetCaseId]?.country} · {m.label}</span>
+                  <span className="og-small">{C(state.cases[m.targetCaseId]?.country ?? "")} · {t(m.labelKey as "match.label.strong")}</span>
                 </span>
                 <span className="og-num" style={{ fontSize: 20, color: "var(--teal-deep)" }}>{m.score}</span>
               </Link>
             ))}
           </Panel>
 
-          <Panel title="Network activity" meta="Across member institutions" padded={false}>
+          <Panel title={t("dash.networkActivity")} meta={t("dash.acrossInstitutions")} padded={false}>
             {notifications.length === 0 ? (
-              <div style={{ padding: "18px" }}><p className="og-small" style={{ margin: 0 }}>Nothing yet. Activity appears here as the network responds to your cases.</p></div>
+              <div style={{ padding: "18px" }}><p className="og-small" style={{ margin: 0 }}>{t("dash.activityEmpty")}</p></div>
             ) : notifications.map((n) => (
               <Link key={n.id} href={n.href} className="og-listrow" style={{ gridTemplateColumns: "1fr auto" }}>
                 <span>
-                  <span style={{ display: "block", fontSize: 12.5, fontWeight: n.read ? 500 : 700 }}>{n.title}</span>
-                  <span className="og-small">{n.detail}</span>
+                  <span style={{ display: "block", fontSize: 12.5, fontWeight: n.read ? 500 : 700 }}>{t(n.titleKey as "ntf.match", n.titleParams)}</span>
+                  <span className="og-small">{t(n.detailKey as "ntf.matchBody", n.detailParams)}</span>
                 </span>
                 <span className="og-mono og-small">{relTime(n.createdAt, now)}</span>
               </Link>
             ))}
           </Panel>
 
-          <Panel title="The network" meta={`${networkNodes.length} institutions shown`}>
+          <Panel title={t("dash.theNetwork")} meta={t("dash.institutionsShown", { n: networkNodes.length })}>
             <WorldMap
               nodes={networkNodes}
               edges={networkEdges}
@@ -144,7 +151,7 @@ export default function DashboardPage() {
               labelSize={1.7}
             />
             <p className="og-small" style={{ marginTop: 10 }}>
-              {PRODUCT.principle} <Link href="/network" className="og-link">Explore the network</Link>
+              {t("st.principle")} <Link href="/network" className="og-link">{t("dash.explore")}</Link>
             </p>
           </Panel>
         </div>
@@ -152,8 +159,7 @@ export default function DashboardPage() {
 
       <section className="og-sec">
         <Banner>
-          <b>This is a demonstration.</b> Every case, clinician and result is synthetic. Matching is a deterministic
-          product simulation, not a clinical method, and no output here is a diagnosis.
+          <b>{t("dash.bannerLead")}</b> {t("dash.banner").replace(t("dash.bannerLead") + " ", "")}
         </Banner>
       </section>
     </>

@@ -373,7 +373,7 @@ export function buildSeedState(): AppState {
     contributions: [],
     notifications: [],
     audit: [
-      { id: "aud-seed", actorId: "system", action: "session.started", subject: "ODYSSEY", detail: "Demonstration environment seeded with synthetic records", at: DEMO_NOW - 1 * DAY },
+      { id: "aud-seed", actorId: "system", action: "session.started", subject: "ODYSSEY", detailKey: "aud.seeded", at: DEMO_NOW - 1 * DAY },
     ],
     searched: [],
     clock: DEMO_NOW,

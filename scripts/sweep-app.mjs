@@ -13,6 +13,10 @@ for (const w of [1500, 1100, 390]) {
   await page.goto(`${BASE}/enter`, { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Enter demo as", exact: false }).first().click();
   await page.waitForTimeout(700);
+  if (process.env.LANG_RU) {
+    await page.getByRole("button", { name: "РУ", exact: true }).first().click();
+    await page.waitForTimeout(600);
+  }
   for (const p of PATHS) {
     errs.length = 0;
     await page.goto(`${BASE}${p}`, { waitUntil: "networkidle" });

@@ -64,11 +64,14 @@ export type NewCaseDraft = {
 let seq = 0;
 const uid = (prefix: string) => `${prefix}-${(seq += 1).toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`;
 
-function audit(state: AppState, actorId: DoctorId | "system", action: AuditAction, subject: string, detail: string): AppState {
+function audit(
+  state: AppState, actorId: DoctorId | "system", action: AuditAction, subject: string,
+  detailKey: string, detailParams?: Record<string, string | number>,
+): AppState {
   return {
     ...state,
     clock: state.clock + MIN,
-    audit: [{ id: uid("aud"), actorId, action, subject, detail, at: state.clock + MIN }, ...state.audit],
+    audit: [{ id: uid("aud"), actorId, action, subject, detailKey, detailParams, at: state.clock + MIN }, ...state.audit],
   };
 }
 
@@ -123,8 +126,7 @@ function reducer(state: AppState, action: Action): AppState {
 
     case "enter": {
       const s = { ...state, currentDoctorId: action.doctorId };
-      return audit(s, action.doctorId, "session.started", "Demo session",
-        `${doctors[action.doctorId].name} entered the demonstration environment`);
+      return audit(s, action.doctorId, "session.started", "Demo session", "aud.entered", { name: doctors[action.doctorId].name });
     }
 
     case "switchDoctor":
@@ -180,12 +182,11 @@ function reducer(state: AppState, action: Action): AppState {
         cases: { ...state.cases, [newCase.id]: newCase },
         caseOrder: [newCase.id, ...state.caseOrder],
       };
-      return audit(s, owner, "case.created", newCase.id, `Case ${newCase.id} created — ${newCase.phenotypeCluster.toLowerCase()} cluster, ${newCase.ageGroup}`);
+      return audit(s, owner, "case.created", newCase.id, "aud.caseCreated", { id: newCase.id, cluster: newCase.phenotypeCluster, age: newCase.ageGroup });
     }
 
     case "uploadDocument":
-      return audit(state, state.currentDoctorId ?? "system", "document.uploaded", action.caseId,
-        `${action.fileName} uploaded and queued for AI-assisted extraction`);
+      return audit(state, state.currentDoctorId ?? "system", "document.uploaded", action.caseId, "aud.uploaded", { file: action.fileName });
 
     case "completeExtraction": {
       const c = state.cases[action.caseId];
@@ -195,8 +196,7 @@ function reducer(state: AppState, action: Action): AppState {
       const merged = [...c.phenotypes, ...added];
       const updated: CaseRecord = { ...c, phenotypes: merged };
       const s = patchCase(state, action.caseId, { phenotypes: merged, completeness: recomputeCompleteness(updated) });
-      return audit(s, "system", "extraction.completed", action.caseId,
-        `AI-assisted extraction proposed ${added.length} phenotype terms from ${action.fileName} — awaiting clinician verification`);
+      return audit(s, "system", "extraction.completed", action.caseId, "aud.extracted", { n: added.length, file: action.fileName });
     }
 
     case "reviewPhenotype": {
@@ -209,7 +209,8 @@ function reducer(state: AppState, action: Action): AppState {
       return audit(s, state.currentDoctorId ?? "system",
         action.decision === "verified" ? "phenotype.verified" : "phenotype.rejected",
         action.caseId,
-        `${t?.term ?? action.hpo} ${action.decision === "verified" ? "confirmed by clinician" : "rejected by clinician"}`);
+        action.decision === "verified" ? "aud.phenotypeVerified" : "aud.phenotypeRejected",
+        { term: t?.term ?? action.hpo });
     }
 
     case "editPhenotype": {
@@ -218,8 +219,7 @@ function reducer(state: AppState, action: Action): AppState {
       const phenotypes = c.phenotypes.map((p) => (p.hpo === action.hpo ? { ...p, ...action.patch, verification: "verified" as const } : p));
       const updated = { ...c, phenotypes };
       const s = patchCase(state, action.caseId, { phenotypes, completeness: recomputeCompleteness(updated) });
-      return audit(s, state.currentDoctorId ?? "system", "phenotype.verified", action.caseId,
-        `${action.patch.term ?? action.hpo} edited and confirmed by clinician`);
+      return audit(s, state.currentDoctorId ?? "system", "phenotype.verified", action.caseId, "aud.phenotypeEdited", { term: action.patch.term ?? action.hpo });
     }
 
     case "runMatching": {
@@ -249,18 +249,22 @@ function reducer(state: AppState, action: Action): AppState {
         s = notify(s, {
           to: source.ownerId,
           kind: "match",
-          title: top.score >= STRONG_THRESHOLD ? "Strong potential match surfaced" : "Potential match surfaced",
-          detail: `${source.id} ↔ ${top.targetCaseId} · ${top.dimensions.filter((d) => d.direction === "supporting").length} of ${top.dimensions.length} evidence groups concordant`,
+          titleKey: top.score >= STRONG_THRESHOLD ? "ntf.matchStrong" : "ntf.match",
+          detailKey: "ntf.matchBody",
+          detailParams: {
+            a: source.id, b: top.targetCaseId,
+            n: top.dimensions.filter((d) => d.direction === "supporting").length,
+            total: top.dimensions.length,
+          },
           href: topId ? `/matches/${topId}` : "/matches",
         });
       }
-      return audit(s, state.currentDoctorId ?? "system", "match.generated", action.caseId,
-        `Federated query returned ${surfaced.length} candidate${surfaced.length === 1 ? "" : "s"} above the review threshold (${results.length} records evaluated)`);
+      return audit(s, state.currentDoctorId ?? "system", "match.generated", action.caseId, "aud.matchRun", { n: surfaced.length, total: results.length });
     }
 
     case "dismissMatch":
       return audit(setMatchStatus(state, action.matchId, "dismissed"), state.currentDoctorId ?? "system",
-        "match.generated", action.matchId, "Match dismissed by clinician as not relevant");
+        "match.generated", action.matchId, "aud.matchDismissed");
 
     case "requestConnection": {
       const m = state.matches[action.matchId];
@@ -272,12 +276,12 @@ function reducer(state: AppState, action: Action): AppState {
       s = notify(s, {
         to: target.ownerId,
         kind: "connection-request",
-        title: "New collaboration request",
-        detail: `${doctors[from].name}, ${doctors[from].country} — regarding ${source.id} ↔ ${target.id}`,
+        titleKey: "ntf.request",
+        detailKey: "ntf.requestBody",
+        detailParams: { name: doctors[from].name, country: doctors[from].country, a: source.id, b: target.id },
         href: `/matches/${action.matchId}`,
       });
-      return audit(s, from, "connection.requested", `${source.id} ↔ ${target.id}`,
-        `Clinical connection requested by ${doctors[from].name}`);
+      return audit(s, from, "connection.requested", `${source.id} ↔ ${target.id}`, "aud.connectionRequested", { name: doctors[from].name });
     }
 
     case "respondConnection": {
@@ -290,11 +294,12 @@ function reducer(state: AppState, action: Action): AppState {
         let s = setMatchStatus(state, action.matchId, "declined");
         s = notify(s, {
           to: source.ownerId, kind: "connection-declined",
-          title: "Collaboration request declined",
-          detail: `${doctors[responder].name} declined the request regarding ${source.id}`,
+          titleKey: "ntf.declined",
+          detailKey: "ntf.declinedBody",
+          detailParams: { name: doctors[responder].name, id: source.id },
           href: `/matches/${action.matchId}`,
         });
-        return audit(s, responder, "connection.declined", `${source.id} ↔ ${target.id}`, "Connection request declined");
+        return audit(s, responder, "connection.declined", `${source.id} ↔ ${target.id}`, "aud.connectionDeclined");
       }
       // Deterministic: callers can navigate straight to the room without waiting for state.
       const collabId = `col-${action.matchId}`;
@@ -310,19 +315,19 @@ function reducer(state: AppState, action: Action): AppState {
         messages: [
           {
             id: uid("msg"), author: "system", kind: "system", at: state.clock,
-            body: `Secure room opened following mutual acceptance of the potential match between ${source.id} and ${target.id}. No identifiable patient data is exchanged in this room.`,
+            bodyKey: "co.roomOpened", bodyParams: { a: source.id, b: target.id }, body: "",
           },
         ],
         documents: [
-          { label: `Evidence comparison — ${source.id} / ${target.id}`, meta: `Generated on request · ${m.dimensions.length} evidence groups`, kind: "Comparison" },
-          { label: `${source.id}-structured-signals.json`, meta: `Shared by ${doctors[source.ownerId].name} · HPO coded`, kind: "Structured data" },
-          { label: `${target.id}-structured-signals.json`, meta: `Shared by ${doctors[target.ownerId].name} · HPO coded`, kind: "Structured data" },
+          { labelKey: "co.docComparison", labelParams: { a: source.id, b: target.id }, metaKey: "co.docComparisonMeta", metaParams: { n: m.dimensions.length }, kindKey: "co.kindComparison" },
+          { labelKey: "co.docSignals", labelParams: { id: source.id }, metaKey: "co.docSignalsMeta", metaParams: { name: doctors[source.ownerId].name }, kindKey: "co.kindStructured" },
+          { labelKey: "co.docSignals", labelParams: { id: target.id }, metaKey: "co.docSignalsMeta", metaParams: { name: doctors[target.ownerId].name }, kindKey: "co.kindStructured" },
         ],
         decisionLog: [
-          { id: uid("dec"), actor: "Both clinicians", action: "Accepted potential match for review", at: state.clock, state: "done" },
-          { id: uid("dec"), actor: doctors[source.ownerId].name, action: "Verify clinical relevance", at: null, state: "pending" },
-          { id: uid("dec"), actor: doctors[target.ownerId].name, action: "Verify clinical relevance", at: null, state: "pending" },
-          { id: uid("dec"), actor: "Network", action: "Record knowledge contribution", at: null, state: "blocked" },
+          { id: uid("dec"), actorKey: "co.bothClinicians", actionKey: "co.decAccepted", at: state.clock, state: "done" },
+          { id: uid("dec"), actor: doctors[source.ownerId].name, actionKey: "co.decVerify", at: null, state: "pending" },
+          { id: uid("dec"), actor: doctors[target.ownerId].name, actionKey: "co.decVerify", at: null, state: "pending" },
+          { id: uid("dec"), actorKey: "co.network", actionKey: "co.decContribution", at: null, state: "blocked" },
         ],
         verifications: [],
       };
@@ -330,12 +335,12 @@ function reducer(state: AppState, action: Action): AppState {
       s = { ...s, collaborations: { ...s.collaborations, [collabId]: collab } };
       s = notify(s, {
         to: source.ownerId, kind: "connection-accepted",
-        title: "Collaboration request accepted",
-        detail: `${doctors[responder].name} accepted — secure room open for ${source.id} ↔ ${target.id}`,
+        titleKey: "ntf.accepted",
+        detailKey: "ntf.acceptedBody",
+        detailParams: { name: doctors[responder].name, a: source.id, b: target.id },
         href: `/collaboration/${collabId}`,
       });
-      return audit(s, responder, "connection.accepted", `${source.id} ↔ ${target.id}`,
-        `Connection accepted by ${doctors[responder].name}; secure collaboration room opened`);
+      return audit(s, responder, "connection.accepted", `${source.id} ↔ ${target.id}`, "aud.connectionAccepted", { name: doctors[responder].name });
     }
 
     case "sendMessage": {
@@ -358,9 +363,9 @@ function reducer(state: AppState, action: Action): AppState {
       const verifications = [...col.verifications, { by, at: state.clock, notes: action.notes }];
       const both = verifications.length >= 2;
       const decisionLog = col.decisionLog.map((d) =>
-        d.action === "Verify clinical relevance" && d.actor === doctors[by].name && d.state === "pending"
+        d.actionKey === "co.decVerify" && d.actor === doctors[by].name && d.state === "pending"
           ? { ...d, at: state.clock, state: "done" as const }
-          : both && d.action === "Record knowledge contribution"
+          : both && d.actionKey === "co.decContribution"
             ? { ...d, at: state.clock, state: "done" as const }
             : d,
       );
@@ -373,14 +378,14 @@ function reducer(state: AppState, action: Action): AppState {
       const target = state.cases[col.caseBId];
       const other = by === col.doctorAId ? col.doctorBId : col.doctorAId;
 
-      s = audit(s, by, "verification.completed", `${source.id} ↔ ${target.id}`,
-        `Clinical relevance verified by ${doctors[by].name}`);
+      s = audit(s, by, "verification.completed", `${source.id} ↔ ${target.id}`, "aud.verified", { name: doctors[by].name });
 
       if (!both) {
         s = notify(s, {
           to: other, kind: "verification-requested",
-          title: "Second verification required",
-          detail: `${doctors[by].name} verified clinical relevance of ${source.id} ↔ ${target.id}. Your assessment is required.`,
+          titleKey: "ntf.secondVerification",
+          detailKey: "ntf.secondVerificationBody",
+          detailParams: { name: doctors[by].name, a: source.id, b: target.id },
           href: `/collaboration/${col.id}`,
         });
         return s;
@@ -409,13 +414,13 @@ function reducer(state: AppState, action: Action): AppState {
       for (const to of [col.doctorAId, col.doctorBId]) {
         s = notify(s, {
           to, kind: "contribution",
-          title: "Knowledge contribution recorded",
-          detail: `${source.id} ↔ ${target.id} is now a clinically corroborated connection in the network record`,
+          titleKey: "ntf.contribution",
+          detailKey: "ntf.contributionBody",
+          detailParams: { a: source.id, b: target.id },
           href: `/knowledge`,
         });
       }
-      return audit(s, "system", "contribution.recorded", `${source.id} ↔ ${target.id}`,
-        "Knowledge contribution recorded — connection clinically corroborated by two independent clinicians");
+      return audit(s, "system", "contribution.recorded", `${source.id} ↔ ${target.id}`, "aud.contribution");
     }
 
     case "readNotification":

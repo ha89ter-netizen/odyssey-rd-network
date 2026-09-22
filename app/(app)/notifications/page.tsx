@@ -3,20 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStore, selectNotificationsOf } from "@/store/store";
-import { Panel, Button, Pill, Empty, SectionHead, Disclaimer, relTime } from "@/ui/primitives";
-
-const KIND_LABEL: Record<string, string> = {
-  match: "Potential match",
-  "connection-request": "Connection request",
-  "connection-accepted": "Connection accepted",
-  "connection-declined": "Connection declined",
-  "verification-requested": "Verification requested",
-  "verification-complete": "Verification complete",
-  contribution: "Knowledge contribution",
-};
+import { Panel, Button, Pill, Empty, SectionHead, Disclaimer } from "@/ui/primitives";
+import { useI18n, useRelTime } from "@/i18n/i18n";
 
 export default function NotificationsPage() {
   const { state, dispatch } = useStore();
+  const { t } = useI18n();
+  const relTime = useRelTime();
   const router = useRouter();
   const me = state.currentDoctorId!;
   const items = selectNotificationsOf(state, me);
@@ -31,27 +24,27 @@ export default function NotificationsPage() {
     <>
       <header className="ody-rise og-between" style={{ alignItems: "flex-end", padding: "6px 4px 0" }}>
         <div style={{ maxWidth: "62ch" }}>
-          <div className="og-eyebrow">Activity</div>
-          <h1 className="og-h1" style={{ marginTop: 12 }}>Notifications</h1>
+          <div className="og-eyebrow">{t("nt.eyebrow")}</div>
+          <h1 className="og-h1" style={{ marginTop: 12 }}>{t("nt.title")}</h1>
           <p className="og-lede" style={{ marginTop: 10 }}>
-            {unread > 0 ? `${unread} unread.` : "Nothing unread."} Everything the network has raised for you, newest first.
+            {unread > 0 ? t("nt.unread", { n: unread }) : t("nt.allRead")} {t("nt.lede")}
           </p>
         </div>
         <div className="og-row" style={{ justifyContent: "flex-end" }}>
           <Disclaimer />
-          {unread > 0 && <Button variant="ghost" onClick={() => dispatch({ type: "readAllNotifications" })}>Mark all read</Button>}
+          {unread > 0 && <Button variant="ghost" onClick={() => dispatch({ type: "readAllNotifications" })}>{t("nt.markAll")}</Button>}
         </div>
       </header>
 
       <div className="og-sec">
-        <SectionHead label="Inbox" note={`${items.length} item${items.length === 1 ? "" : "s"}`} />
+        <SectionHead label={t("nt.inbox")} note={t("nt.items", { n: items.length })} />
         <Panel padded={false}>
           {items.length === 0 ? (
             <Empty
-              title="Nothing yet"
-              body="Notifications appear when the network surfaces a match, a colleague requests a connection, or a verification completes."
+              title={t("nt.none")}
+              body={t("nt.noneBody")}
               icon="◔"
-              action={<Link href="/cases"><Button>Go to cases</Button></Link>}
+              action={<Link href="/cases"><Button>{t("nt.goToCases")}</Button></Link>}
             />
           ) : items.map((n) => (
             <button
@@ -62,11 +55,11 @@ export default function NotificationsPage() {
             >
               <span style={{ width: 8, height: 8, borderRadius: 99, background: n.read ? "var(--line-2)" : "var(--teal)" }} />
               <span>
-                <span style={{ display: "block", fontSize: 13.5, fontWeight: n.read ? 500 : 700 }}>{n.title}</span>
-                <span className="og-small">{n.detail}</span>
+                <span style={{ display: "block", fontSize: 13.5, fontWeight: n.read ? 500 : 700 }}>{t(n.titleKey as "ntf.match", n.titleParams)}</span>
+                <span className="og-small">{t(n.detailKey as "ntf.matchBody", n.detailParams)}</span>
               </span>
               <Pill tone={n.kind === "contribution" ? "teal" : n.kind === "connection-request" ? "amber" : undefined}>
-                {KIND_LABEL[n.kind] ?? n.kind}
+                {t(`nt.kind.${n.kind}` as "nt.kind.match")}
               </Pill>
               <span className="og-mono og-small" style={{ textAlign: "right" }}>{relTime(n.createdAt, state.clock)}</span>
             </button>

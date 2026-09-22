@@ -7,23 +7,25 @@ import "@/ui/theme.css";
 import "@/ui/app.css";
 import { NodeField } from "@/components/kit";
 import { Avatar, Modal, Button } from "@/ui/primitives";
-import { DISCLAIMER } from "@/data/odyssey";
+import { useI18n } from "@/i18n/i18n";
+import { LANG_SHORT, LANGS } from "@/i18n/lang";
 import {
   useStore, selectOpenMatches, selectCollaborationsOf, selectUnread, selectVerificationTasks,
 } from "@/store/store";
 import type { DoctorId } from "@/store/types";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/cases", label: "Cases" },
-  { href: "/matches", label: "Matches", count: "matches" as const },
-  { href: "/collaboration", label: "Collaboration", count: "collab" as const },
-  { href: "/knowledge", label: "Knowledge" },
-  { href: "/network", label: "Network" },
+  { href: "/dashboard", key: "nav.dashboard" as const },
+  { href: "/cases", key: "nav.cases" as const },
+  { href: "/matches", key: "nav.matches" as const, count: "matches" as const },
+  { href: "/collaboration", key: "nav.collaboration" as const, count: "collab" as const },
+  { href: "/knowledge", key: "nav.knowledge" as const },
+  { href: "/network", key: "nav.network" as const },
 ];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { state, dispatch, ready } = useStore();
+  const { t, C, lang, setLang } = useI18n();
   const pathname = usePathname();
   const router = useRouter();
   const [switching, setSwitching] = React.useState(false);
@@ -39,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!ready || !id) {
     return (
       <div className="og og-app" style={{ display: "grid", placeItems: "center", minHeight: "100vh" }}>
-        <div className="og-small">Loading demonstration environment…</div>
+        <div className="og-small">{t("common.loading")}</div>
       </div>
     );
   }
@@ -64,7 +66,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="og-shell">
-        <div className="og-disclaimer-bar">◆ {DISCLAIMER} · SYNTHETIC RECORDS ONLY</div>
+        <div className="og-disclaimer-bar">◆ {t("common.disclaimerBar")}</div>
 
         <header className="og-top">
           <Link href="/dashboard" className="og-brandmark">
@@ -82,7 +84,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               const c = n.count ? counts[n.count] : 0;
               return (
                 <Link key={n.href} href={n.href} className="og-navlink" data-on={on}>
-                  {n.label}
+                  {t(n.key)}
                   {c > 0 && <span className="og-navcount">{c}</span>}
                 </Link>
               );
@@ -90,15 +92,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
-            <Link href="/notifications" className="og-iconbtn" data-dot={unread > 0} aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
+            <Link href="/notifications" className="og-iconbtn" data-dot={unread > 0} aria-label={t("nav.notifications")}>
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden>
                 <path d="M4 6.5a4 4 0 0 1 8 0c0 3 1 4 1 4H3s1-1 1-4Z" /><path d="M6.6 13a1.6 1.6 0 0 0 2.8 0" />
               </svg>
             </Link>
 
-            <button className="og-whochip" onClick={() => setSwitching(true)} aria-label="Switch demo clinician">
+            <div className="og-row" style={{ gap: 3, border: "1px solid var(--line-2)", borderRadius: 99, padding: 2, background: "rgba(255,255,255,0.6)" }} role="group" aria-label={t("nav.language")}>
+              {LANGS.map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  aria-pressed={l === lang}
+                  className="og-navlink"
+                  data-on={l === lang}
+                  style={{ padding: "5px 10px", fontFamily: "var(--font-data)", fontSize: 10.5, letterSpacing: "0.08em" }}
+                >
+                  {LANG_SHORT[l]}
+                </button>
+              ))}
+            </div>
+
+            <button className="og-whochip" onClick={() => setSwitching(true)} aria-label={t("nav.switchClinician")}>
               <Avatar initials={doctor.initials} side={doctor.id === "doc-a" ? "a" : "b"} />
-              <span>{doctor.countryCode} · {doctor.name.replace("Dr. ", "")}</span>
+              <span>{doctor.countryCode} · {C(doctor.name).replace(/^(Dr\. |д-р )/, "")}</span>
             </button>
 
             <div style={{ position: "relative" }}>
@@ -109,9 +126,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   style={{ position: "absolute", right: 0, top: 40, zIndex: 60, minWidth: 190, padding: 6, borderRadius: 12 }}
                   onMouseLeave={() => setMenu(false)}
                 >
-                  {[["/settings", "Settings"], ["/admin", "Admin & audit"]].map(([href, label]) => (
+                  {([["/settings", "nav.settings"], ["/admin", "nav.admin"]] as const).map(([href, key]) => (
                     <Link key={href} href={href} className="og-navlink" style={{ display: "block", borderRadius: 8 }} onClick={() => setMenu(false)}>
-                      {label}
+                      {t(key)}
                     </Link>
                   ))}
                 </div>
@@ -128,13 +145,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Modal
         open={switching}
         onClose={() => setSwitching(false)}
-        title="Switch clinician"
-        footer={<Button variant="ghost" onClick={() => setSwitching(false)}>Cancel</Button>}
+        title={t("nav.switchClinician")}
+        footer={<Button variant="ghost" onClick={() => setSwitching(false)}>{t("common.cancel")}</Button>}
       >
-        <p className="og-small" style={{ marginTop: 0 }}>
-          The demonstration has two clinicians on opposite sides of the network. Switching changes whose cases,
-          notifications and verification tasks you see — the underlying data is shared.
-        </p>
+        <p className="og-small" style={{ marginTop: 0 }}>{t("nav.switchNote")}</p>
         <div className="og-stack" style={{ marginTop: 16 }}>
           {(Object.values(state.doctors)).map((d) => (
             <button
@@ -145,8 +159,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               <Avatar initials={d.initials} side={d.id === "doc-a" ? "a" : "b"} />
               <span>
-                <span style={{ display: "block", fontSize: 13.5, fontWeight: 700 }}>{d.name}</span>
-                <span className="og-small">{d.role} · {d.institution}, {d.city}</span>
+                <span style={{ display: "block", fontSize: 13.5, fontWeight: 700 }}>{C(d.name)}</span>
+                <span className="og-small">{C(d.role)} · {C(d.institution)}, {C(d.city)}</span>
               </span>
               <span className="og-pill" data-tone={d.id === id ? "teal" : undefined}>{d.countryCode}</span>
             </button>

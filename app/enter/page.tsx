@@ -9,10 +9,11 @@ import { Avatar, Button, Disclaimer } from "@/ui/primitives";
 import { useStore } from "@/store/store";
 import { selectCasesOf } from "@/store/store";
 import type { DoctorId } from "@/store/types";
-import { DISCLAIMER, PRODUCT } from "@/data/odyssey";
+import { useI18n } from "@/i18n/i18n";
 
 export default function EnterPage() {
   const { state, dispatch, ready } = useStore();
+  const { t, C } = useI18n();
   const router = useRouter();
   const [picked, setPicked] = React.useState<DoctorId>("doc-a");
 
@@ -36,34 +37,31 @@ export default function EnterPage() {
           </svg>
           <div>
             <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: "0.2em" }}>ODYSSEY</div>
-            <div className="og-eyebrow" style={{ marginTop: 4 }}>{PRODUCT.tagline}</div>
+            <div className="og-eyebrow" style={{ marginTop: 4 }}>{t("enter.tagline")}</div>
           </div>
           <div style={{ marginLeft: "auto" }}><Disclaimer /></div>
         </header>
 
         <section className="ody-rise" style={{ marginTop: "clamp(34px, 6vw, 64px)", maxWidth: "24ch" }}>
           <h1 className="og-h1" style={{ fontSize: "clamp(34px, 5.4vw, 54px)", lineHeight: 1.04 }}>
-            The answer may already exist.
+            {t("enter.title")}
           </h1>
         </section>
         <p className="og-lede ody-rise" style={{ marginTop: 20, "--d": "90ms" } as React.CSSProperties}>
-          ODYSSEY connects clinicians whose unresolved cases describe the same disease. It does not diagnose. It
-          surfaces a potential match, explains the evidence behind it, and puts two doctors in the same room to decide
-          what it means.
+          {t("enter.lede")}
         </p>
 
         <section className="og-glass ody-rise" style={{ marginTop: "clamp(30px, 5vw, 48px)", padding: "clamp(22px, 3vw, 30px)", "--d": "180ms" } as React.CSSProperties}>
           <div className="og-between" style={{ alignItems: "flex-start" }}>
             <div>
-              <div className="og-eyebrow">Enter the demonstration</div>
-              <h2 className="og-h2" style={{ marginTop: 8, fontSize: 17 }}>Choose which clinician you are</h2>
+              <div className="og-eyebrow">{t("enter.heading")}</div>
+              <h2 className="og-h2" style={{ marginTop: 8, fontSize: 17 }}>{t("enter.chooseWho")}</h2>
             </div>
-            <span className="og-pill">No account required</span>
+            <span className="og-pill">{t("enter.noAccount")}</span>
           </div>
 
           <p className="og-small" style={{ marginTop: 12, maxWidth: "70ch" }}>
-            The full story runs across two clinicians on opposite sides of the network. Start as Dr. Seitkali in
-            Kazakhstan to follow the case that needs an answer — you can switch sides at any point from the header.
+            {t("enter.chooseNote")}
           </p>
 
           <div className="og-stack" style={{ marginTop: 20 }}>
@@ -74,15 +72,15 @@ export default function EnterPage() {
                   <Avatar initials={d.initials} side={d.id === "doc-a" ? "a" : "b"} />
                   <span>
                     <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>
-                      {d.name} <span style={{ color: "var(--ink-3)", fontWeight: 500 }}>— {d.country}</span>
+                      {C(d.name)} <span style={{ color: "var(--ink-3)", fontWeight: 500 }}>— {C(d.country)}</span>
                     </span>
-                    <span className="og-small">{d.role} · {d.institution}, {d.city}</span>
+                    <span className="og-small">{C(d.role)} · {C(d.institution)}, {C(d.city)}</span>
                     <span className="og-small" style={{ display: "block", marginTop: 4 }}>
-                      {cases} case{cases === 1 ? "" : "s"} in the network · {d.accreditation}
+                      {t("enter.casesInNetwork", { n: cases })} · {C(d.accreditation)}
                     </span>
                   </span>
                   <span className="og-pill" data-tone={picked === d.id ? "teal" : undefined}>
-                    {picked === d.id ? "Selected" : d.countryCode}
+                    {picked === d.id ? t("enter.selected") : d.countryCode}
                   </span>
                 </button>
               );
@@ -90,44 +88,35 @@ export default function EnterPage() {
           </div>
 
           <div className="og-between" style={{ marginTop: 22 }}>
-            <span className="og-small">{DISCLAIMER}. Nothing here is a medical record.</span>
+            <span className="og-small">{t("common.disclaimer")}. {t("enter.nothingMedical")}</span>
             <Button onClick={enter}>
-              Enter demo as {state.doctors[picked].name.replace("Dr. ", "Dr ")}
+              {t("enter.enterAs", { name: C(state.doctors[picked].name) })}
               <span aria-hidden>→</span>
             </Button>
           </div>
         </section>
 
         <section style={{ marginTop: 36 }}>
-          <div className="og-eyebrow">What you will walk through</div>
+          <div className="og-eyebrow">{t("enter.walkTitle")}</div>
           <ol className="og-grid" data-cols="auto" style={{ marginTop: 14, listStyle: "none", padding: 0 }}>
-            {[
-              ["Structure a case", "An unresolved paediatric case is turned into comparable clinical signals."],
-              ["Upload a report", "Simulated AI-assisted extraction proposes phenotype terms; you verify each one."],
-              ["Search the network", "A deterministic matching engine ranks every other case in the network."],
-              ["Understand why", "The system explains which evidence made the two cases comparable."],
-              ["Connect and verify", "Two clinicians compare evidence and record whether the link is real."],
-              ["Contribute knowledge", "The verified connection becomes part of the network record."],
-            ].map(([t, b], i) => (
-              <li key={t} className="og-flat ody-rise" style={{ padding: "16px 18px", "--d": `${240 + i * 60}ms` } as React.CSSProperties}>
-                <div className="og-mono og-small" style={{ color: "var(--teal-deep)" }}>{String(i + 1).padStart(2, "0")}</div>
-                <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 8 }}>{t}</div>
-                <div className="og-small" style={{ marginTop: 5 }}>{b}</div>
+            {([1, 2, 3, 4, 5, 6] as const).map((n, i) => (
+              <li key={n} className="og-flat ody-rise" style={{ padding: "16px 18px", "--d": `${240 + i * 60}ms` } as React.CSSProperties}>
+                <div className="og-mono og-small" style={{ color: "var(--teal-deep)" }}>{String(n).padStart(2, "0")}</div>
+                <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 8 }}>{t(`enter.step${n}.t` as "enter.step1.t")}</div>
+                <div className="og-small" style={{ marginTop: 5 }}>{t(`enter.step${n}.b` as "enter.step1.b")}</div>
               </li>
             ))}
           </ol>
         </section>
 
         <footer style={{ marginTop: 44, paddingTop: 20, borderTop: "1px solid var(--line)" }} className="og-between">
-          <span className="og-small">
-            Prototype · synthetic data · no backend, no patient records, no diagnostic claims.
-          </span>
+          <span className="og-small">{t("enter.footer")}</span>
           <button
             className="og-small og-link"
             style={{ background: "none", border: 0, cursor: "pointer" }}
             onClick={() => { dispatch({ type: "reset" }); window.location.reload(); }}
           >
-            Reset demonstration data
+            {t("enter.reset")}
           </button>
         </footer>
       </div>

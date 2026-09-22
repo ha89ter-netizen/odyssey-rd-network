@@ -110,16 +110,27 @@ export type CaseRecord = {
 export type MatchDimensionId =
   | "phenotype" | "trajectory" | "genetics" | "laboratory" | "imaging" | "temporal" | "family" | "negative";
 
+/** A sentence the engine assembles as a key plus data, so it can render in any language. */
+export type Phrase = {
+  key: string;
+  params?: Record<string, string | number>;
+  /** Params whose values are clinical content needing translation before joining. */
+  lists?: Record<string, string[]>;
+  /** Same, but lower-cased so the terms sit inside a sentence. */
+  listsLower?: Record<string, string[]>;
+};
+
 export type MatchDimension = {
   id: MatchDimensionId;
-  label: string;
+  /** Dictionary key, e.g. "dim.phenotype". */
+  labelKey: string;
   /** 0–100 similarity of recorded evidence. Never a diagnostic probability. */
   score: number;
   weight: number;
   direction: "supporting" | "divergent";
-  summary: string;
-  aValue: string;
-  bValue: string;
+  summary: Phrase;
+  aValue: Phrase;
+  bValue: Phrase;
 };
 
 export type MatchStatus =
@@ -135,11 +146,12 @@ export type Match = {
   sourceCaseId: string;
   targetCaseId: string;
   score: number;
-  label: string;
+  /** Dictionary key, e.g. "match.label.strong". */
+  labelKey: string;
   dimensions: MatchDimension[];
   /** Structured, human-readable reasons — not generated prose. */
-  explanation: string[];
-  divergences: string[];
+  explanation: Phrase[];
+  divergences: Phrase[];
   sharedPhenotypes: string[];
   uniqueToSource: string[];
   uniqueToTarget: string[];
@@ -152,13 +164,31 @@ export type Match = {
 export type Message = {
   id: string;
   author: DoctorId | "system";
+  /** Clinician-written text stays as written; system messages use a key. */
   body: string;
+  bodyKey?: string;
+  bodyParams?: PhraseParams;
   at: number;
   kind?: "note" | "proposal" | "system";
   attachment?: { label: string; meta: string };
 };
 
-export type DecisionEntry = { id: string; actor: string; action: string; at: number | null; state: "done" | "pending" | "blocked" };
+export type DecisionEntry = {
+  id: string;
+  actor?: string;
+  actorKey?: string;
+  actionKey: string;
+  at: number | null;
+  state: "done" | "pending" | "blocked";
+};
+
+export type RoomDocument = {
+  labelKey: string;
+  labelParams?: PhraseParams;
+  metaKey: string;
+  metaParams?: PhraseParams;
+  kindKey: string;
+};
 
 export type Verification = {
   by: DoctorId;
@@ -176,7 +206,7 @@ export type Collaboration = {
   openedAt: number;
   stageIndex: number;
   messages: Message[];
-  documents: { label: string; meta: string; kind: string }[];
+  documents: RoomDocument[];
   decisionLog: DecisionEntry[];
   verifications: Verification[];
 };
@@ -196,12 +226,16 @@ export type NotificationKind =
   | "match" | "connection-request" | "connection-accepted" | "connection-declined"
   | "verification-requested" | "verification-complete" | "contribution";
 
+export type PhraseParams = Record<string, string | number>;
+
 export type AppNotification = {
   id: string;
   to: DoctorId;
   kind: NotificationKind;
-  title: string;
-  detail: string;
+  titleKey: string;
+  titleParams?: PhraseParams;
+  detailKey: string;
+  detailParams?: PhraseParams;
   href: string;
   read: boolean;
   createdAt: number;
@@ -217,7 +251,8 @@ export type AuditEvent = {
   actorId: DoctorId | "system";
   action: AuditAction;
   subject: string;
-  detail: string;
+  detailKey: string;
+  detailParams?: PhraseParams;
   at: number;
 };
 

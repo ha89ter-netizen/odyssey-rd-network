@@ -21,7 +21,8 @@ npm install
 npm run dev      # http://localhost:3000  → /enter
 ```
 
-`npm run build` · `npm run typecheck` · `npm run e2e` (drives the whole P0 flow in a headless browser)
+`npm run build` · `npm run typecheck` · `npm run e2e` (drives the whole P0 flow in a headless browser) ·
+`npm run e2e:ru` (verifies the Russian interface, including engine-generated sentences)
 
 No account, backend, database or API key is required. State lives in the browser.
 
@@ -56,6 +57,27 @@ Two further states are real, not mocked screens:
 The whole story runs across two people. The chip in the header switches between Dr Seitkali (KZ) and
 Dr Brandt (DE). Switching changes whose cases, notifications and verification tasks you see; the
 underlying data is shared.
+
+## Languages
+
+English and Russian, switchable from the header at any point; the choice is remembered.
+
+Structured clinical vocabulary — HPO terms, analytes, imaging features, statuses — renders in the
+reader's language, because in the data model those are codes rather than text. That is the product
+thesis made visible: structure is what survives a border. Free text a clinician types (discussion
+notes, verification notes) stays exactly as written.
+
+The matching engine emits sentences as a key plus data (`Phrase` in `src/store/types.ts`), never as
+a finished string, so an explanation like *"7 phenotype features overlap, including…"* is assembled
+in whichever language is active. The same applies to notifications and audit entries, which are
+stored as keys and re-render when the language changes.
+
+| | |
+| --- | --- |
+| `src/i18n/dict.ts` | Interface strings, both languages |
+| `src/i18n/content.ts` | Russian rendering of the synthetic clinical content, keyed by the English source; anything unmapped falls back to English rather than showing a marker |
+| `src/i18n/i18n.tsx` | Provider and the `t` / `C` / `P` helpers |
+| `src/i18n/lang.ts` | Language primitives, including Russian's three plural forms |
 
 ## What is real and what is simulated
 
