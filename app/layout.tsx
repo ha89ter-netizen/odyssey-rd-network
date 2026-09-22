@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { fontVars } from "./fonts";
+import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "ODYSSEY — Global Rare Disease Match Network",
   description:
-    "Design Lab: ten visual directions for ODYSSEY, a global clinical matchmaking network for difficult and rare disease cases. Demonstration data only.",
+    "A global clinical matchmaking network for difficult and rare disease cases. Demonstration data only — not for clinical use.",
 };
 
 export const viewport: Viewport = {
@@ -17,7 +18,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={fontVars}>
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

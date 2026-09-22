@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import "./theme.css";
+import "@/ui/theme.css";
 import type { ScreenId } from "@/lib/concepts";
 import { NodeField, WorldMap, TrajectoryChart, Pedigree, Spark, Ring, Radar, stagger } from "@/components/kit";
 import {
@@ -22,13 +22,13 @@ const NAV: { id: ScreenId; label: string }[] = [
 
 export default function BioGlass({ screen }: { screen: ScreenId }) {
   return (
-    <div className="c08 ody-surface">
-      <div className="c08-atmos">
-        <NodeField seed={41} count={40} className="c08-atmos-net" />
+    <div className="og ody-surface">
+      <div className="og-atmos">
+        <NodeField seed={41} count={40} className="og-atmos-net" />
       </div>
 
-      <header className="c08-top">
-        <div className="c08-mark">
+      <header className="og-top">
+        <div className="og-mark">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
             <path d="M6 3c0 5 10 5 10 10M16 3c0 5-10 5-10 10M6 19c0-3 10-3 10-6" stroke="var(--teal)" strokeWidth="1.3" strokeLinecap="round" />
             <circle cx="6" cy="3" r="1.7" fill="var(--ice)" /><circle cx="16" cy="3" r="1.7" fill="var(--ice)" />
@@ -36,17 +36,17 @@ export default function BioGlass({ screen }: { screen: ScreenId }) {
           </svg>
           ODYSSEY
         </div>
-        <nav className="c08-nav">
-          {NAV.map((n) => <span key={n.id} className="c08-navitem" data-on={n.id === screen}>{n.label}</span>)}
+        <nav className="og-nav">
+          {NAV.map((n) => <span key={n.id} className="og-navitem" data-on={n.id === screen}>{n.label}</span>)}
         </nav>
-        <div className="c08-topright">
+        <div className="og-topright">
           <span>412 INSTITUTIONS</span>
           <span style={{ color: "var(--teal-deep)" }}>● INDEX LIVE</span>
           <span>{doctor.initials} · {doctor.countryCode}</span>
         </div>
       </header>
 
-      <div className="c08-page">
+      <div className="og-page">
         {screen === "dashboard" && <Dashboard />}
         {screen === "create" && <Create />}
         {screen === "case" && <CaseIntel />}
@@ -58,13 +58,13 @@ export default function BioGlass({ screen }: { screen: ScreenId }) {
   );
 }
 
-const Disclaimer = () => <span className="c08-disclaimer">◆ {DISCLAIMER}</span>;
+const Disclaimer = () => <span className="og-disclaimer">◆ {DISCLAIMER}</span>;
 
 const SecHead = ({ label, note, right }: { label: string; note?: string; right?: React.ReactNode }) => (
-  <div className="c08-sechead">
+  <div className="og-sechead">
     <div>
-      <div className="c08-eyebrow">{label}</div>
-      {note && <div className="c08-small" style={{ marginTop: 7 }}>{note}</div>}
+      <div className="og-eyebrow">{label}</div>
+      {note && <div className="og-small" style={{ marginTop: 7 }}>{note}</div>}
     </div>
     {right}
   </div>
@@ -77,9 +77,9 @@ function Dashboard() {
     <>
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 26, flexWrap: "wrap", alignItems: "flex-end", padding: "8px 4px 0" }}>
         <div>
-          <div className="c08-eyebrow">{PRODUCT.tagline}</div>
-          <h1 className="c08-h1" style={{ marginTop: 14 }}>{doctor.greeting}, {doctor.name}</h1>
-          <p className="c08-lede" style={{ marginTop: 12 }}>
+          <div className="og-eyebrow">{PRODUCT.tagline}</div>
+          <h1 className="og-h1" style={{ marginTop: 14 }}>{doctor.greeting}, {doctor.name}</h1>
+          <p className="og-lede" style={{ marginTop: 12 }}>
             Twelve cases unresolved. Four candidate relationships returned overnight; one of them crosses a border and
             is waiting for your assessment.
           </p>
@@ -88,43 +88,43 @@ function Dashboard() {
       </header>
 
       {/* the one floating layer */}
-      <section className="c08-sec">
-        <div className="c08-glass ody-rise" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 1fr)", overflow: "hidden" }}>
+      <section className="og-sec">
+        <div className="og-glass ody-rise" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.2fr) minmax(0, 1fr)", overflow: "hidden" }}>
           <div style={{ padding: "26px 28px 28px" }}>
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-              <span className="c08-pill" data-tone="teal">Potential match</span>
-              <span className="c08-small">{match.surfaced}</span>
+              <span className="og-pill" data-tone="teal">Potential match</span>
+              <span className="og-small">{match.surfaced}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 22, flexWrap: "wrap" }}>
               <div>
-                <div className="c08-num" style={{ fontSize: 30 }}>{caseKZ.id}</div>
-                <div className="c08-small">{caseKZ.country}</div>
+                <div className="og-num" style={{ fontSize: 30 }}>{caseKZ.id}</div>
+                <div className="og-small">{caseKZ.country}</div>
               </div>
               <svg width="80" height="18" viewBox="0 0 80 18" fill="none" aria-hidden>
                 <path className="ody-drawin" style={{ "--dash": 80, "--d": "500ms" } as React.CSSProperties} d="M2 9C22 9 30 3 44 3s24 6 34 6" stroke="var(--teal)" strokeWidth="1.4" strokeDasharray="80" />
                 <circle className="ody-nodein" style={{ "--d": "1200ms" } as React.CSSProperties} cx="44" cy="3" r="2.6" fill="var(--teal)" />
               </svg>
               <div>
-                <div className="c08-num" style={{ fontSize: 30, color: "var(--teal-deep)" }}>{caseDE.id}</div>
-                <div className="c08-small">{caseDE.country}</div>
+                <div className="og-num" style={{ fontSize: 30, color: "var(--teal-deep)" }}>{caseDE.id}</div>
+                <div className="og-small">{caseDE.country}</div>
               </div>
             </div>
-            <p className="c08-lede" style={{ marginTop: 20, fontSize: 14.5 }}>
+            <p className="og-lede" style={{ marginTop: 20, fontSize: 14.5 }}>
               {match.concordantGroups} of {match.totalGroups} evidence groups concordant across phenotype, imaging,
               laboratory and treatment response. {match.confidenceNote}
             </p>
             <div style={{ display: "flex", gap: 10, marginTop: 24, flexWrap: "wrap" }}>
-              <button className="c08-btn">Review evidence</button>
-              <button className="c08-btn" data-variant="ghost">Defer</button>
+              <button className="og-btn">Review evidence</button>
+              <button className="og-btn" data-variant="ghost">Defer</button>
             </div>
           </div>
           <div style={{ borderLeft: "1px solid var(--line)", padding: 22, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-            <div className="c08-eyebrow">Federated query</div>
+            <div className="og-eyebrow">Federated query</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 14 }}>
               {[[match.cohortsQueried.toLocaleString(), "Cohorts"], [String(match.countriesQueried), "Countries"], [match.candidatesScreened.toLocaleString(), "Screened"], [String(match.candidatesReturned), "Returned"]].map(([v, l], i) => (
                 <div key={l} className="ody-fadein" style={stagger(i, 80, 300)}>
-                  <div className="c08-num" style={{ fontSize: 21, color: i === 3 ? "var(--teal-deep)" : undefined }}>{v}</div>
-                  <div className="c08-small" style={{ fontSize: 11 }}>{l}</div>
+                  <div className="og-num" style={{ fontSize: 21, color: i === 3 ? "var(--teal-deep)" : undefined }}>{v}</div>
+                  <div className="og-small" style={{ fontSize: 11 }}>{l}</div>
                 </div>
               ))}
             </div>
@@ -135,37 +135,37 @@ function Dashboard() {
         </div>
       </section>
 
-      <section className="c08-sec">
+      <section className="og-sec">
         <SecHead label="Cases requiring attention" />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14 }}>
           {attention.map((a, i) => (
-            <div key={a.id} className="c08-flat ody-rise" style={{ padding: "18px 20px", ...stagger(i, 70, 120) }}>
-              <div className="c08-small" style={{ fontSize: 12.5 }}>{a.label}</div>
-              <div className="c08-num" style={{ fontSize: 38, marginTop: 8, color: a.tone === "signal" ? "var(--teal-deep)" : a.tone === "alert" ? "var(--coral)" : "var(--ink)" }}>
+            <div key={a.id} className="og-flat ody-rise" style={{ padding: "18px 20px", ...stagger(i, 70, 120) }}>
+              <div className="og-small" style={{ fontSize: 12.5 }}>{a.label}</div>
+              <div className="og-num" style={{ fontSize: 38, marginTop: 8, color: a.tone === "signal" ? "var(--teal-deep)" : a.tone === "alert" ? "var(--coral)" : "var(--ink)" }}>
                 {String(a.count).padStart(2, "0")}
               </div>
-              <div className="c08-small" style={{ marginTop: 8 }}>{a.detail}</div>
+              <div className="og-small" style={{ marginTop: 8 }}>{a.detail}</div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
         <div>
           <SecHead label="Unresolved cases" note="12 in the index · 6 shown" />
-          <div className="c08-solid">
-            <table className="c08-table">
+          <div className="og-solid">
+            <table className="og-table">
               <thead><tr><th style={{ width: 92 }}>Case</th><th>Presentation</th><th style={{ width: 130 }}>Status</th><th style={{ width: 130 }}>Completeness</th></tr></thead>
               <tbody>
                 {caseQueue.map((r, i) => (
                   <tr key={r.id} className="ody-fadein" style={stagger(i, 45, 140)}>
-                    <td className="c08-mono" style={{ color: r.caseId === "ODY-001" ? "var(--teal-deep)" : undefined }}>{r.caseId}</td>
-                    <td style={{ color: "var(--ink-2)" }}>{r.summary}<div className="c08-small" style={{ marginTop: 3 }}>{r.ageGroup} · {r.updated}</div></td>
-                    <td><span className="c08-pill" data-tone={r.status === "Match proposed" ? "teal" : r.status === "Verified" ? "ice" : undefined}>{r.status}</span></td>
+                    <td className="og-mono" style={{ color: r.caseId === "ODY-001" ? "var(--teal-deep)" : undefined }}>{r.caseId}</td>
+                    <td style={{ color: "var(--ink-2)" }}>{r.summary}<div className="og-small" style={{ marginTop: 3 }}>{r.ageGroup} · {r.updated}</div></td>
+                    <td><span className="og-pill" data-tone={r.status === "Match proposed" ? "teal" : r.status === "Verified" ? "ice" : undefined}>{r.status}</span></td>
                     <td>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div className="c08-bar" style={{ flex: 1 }}><i className="ody-growx" style={{ width: `${r.completeness}%`, ...stagger(i, 45, 220) }} /></div>
-                        <span className="c08-mono c08-small">{r.completeness}</span>
+                        <div className="og-bar" style={{ flex: 1 }}><i className="ody-growx" style={{ width: `${r.completeness}%`, ...stagger(i, 45, 220) }} /></div>
+                        <span className="og-mono og-small">{r.completeness}</span>
                       </div>
                     </td>
                   </tr>
@@ -178,36 +178,36 @@ function Dashboard() {
         <div style={{ display: "grid", gap: 22 }}>
           <div>
             <SecHead label="Network activity" />
-            <div className="c08-solid c08-b">
+            <div className="og-solid og-b">
               {networkActivity.map((a, i) => (
                 <div key={a.id} className="ody-fadein" style={{ padding: "11px 0", borderBottom: i < networkActivity.length - 1 ? "1px solid var(--line)" : undefined, ...stagger(i, 55, 200) }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
                     <span style={{ fontSize: 13, fontWeight: 600 }}>{a.title}</span>
-                    <span className="c08-mono c08-small">{a.time}</span>
+                    <span className="og-mono og-small">{a.time}</span>
                   </div>
-                  <div className="c08-small" style={{ marginTop: 3 }}>{a.detail}</div>
-                  <span className="c08-pill" style={{ marginTop: 8, height: 20, fontSize: 9 }}>{a.origin}</span>
+                  <div className="og-small" style={{ marginTop: 3 }}>{a.detail}</div>
+                  <span className="og-pill" style={{ marginTop: 8, height: 20, fontSize: 9 }}>{a.origin}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Matching outcomes</h2><span className="c08-eyebrow">90 days</span></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Matching outcomes</h2><span className="og-eyebrow">90 days</span></div>
+            <div className="og-b">
               {contributionMetrics.map((m, i) => (
                 <div key={m.id} style={{ marginBottom: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 6 }}>
                     <span>{m.label}</span>
-                    <span className="c08-mono">{m.value}<span style={{ color: "var(--ink-4)" }}>/{m.of}</span></span>
+                    <span className="og-mono">{m.value}<span style={{ color: "var(--ink-4)" }}>/{m.of}</span></span>
                   </div>
-                  <div className="c08-bar"><i className="ody-growx" style={{ width: `${(m.value / m.of) * 100}%`, ...stagger(i, 70, 300) }} /></div>
+                  <div className="og-bar"><i className="ody-growx" style={{ width: `${(m.value / m.of) * 100}%`, ...stagger(i, 70, 300) }} /></div>
                 </div>
               ))}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
                 <div>
-                  <div className="c08-eyebrow">Queries / month</div>
-                  <div className="c08-num" style={{ fontSize: 26, marginTop: 4 }}>52</div>
+                  <div className="og-eyebrow">Queries / month</div>
+                  <div className="og-num" style={{ fontSize: 26, marginTop: 4 }}>52</div>
                 </div>
                 <div style={{ color: "var(--teal)" }}><Spark data={querySeries} w={132} h={36} area /></div>
               </div>
@@ -216,9 +216,9 @@ function Dashboard() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {networkStats.map((s) => (
-              <div key={s.id} className="c08-flat" style={{ padding: "14px 16px" }}>
-                <div className="c08-num" style={{ fontSize: 21 }}>{s.value}</div>
-                <div className="c08-small" style={{ marginTop: 5, fontSize: 11.5 }}>{s.label}</div>
+              <div key={s.id} className="og-flat" style={{ padding: "14px 16px" }}>
+                <div className="og-num" style={{ fontSize: 21 }}>{s.value}</div>
+                <div className="og-small" style={{ marginTop: 5, fontSize: 11.5 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -236,9 +236,9 @@ function Create() {
     <>
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 24, flexWrap: "wrap", alignItems: "flex-end", padding: "8px 4px 0" }}>
         <div>
-          <div className="c08-eyebrow">New case</div>
-          <h1 className="c08-h1" style={{ marginTop: 14 }}>Create case</h1>
-          <p className="c08-lede" style={{ marginTop: 12 }}>
+          <div className="og-eyebrow">New case</div>
+          <h1 className="og-h1" style={{ marginTop: 14 }}>Create case</h1>
+          <p className="og-lede" style={{ marginTop: 12 }}>
             Nine sections turn a clinical picture into structured signals. The record stays at your institution; only
             the signals are queried.
           </p>
@@ -246,91 +246,91 @@ function Create() {
         <Disclaimer />
       </header>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "minmax(200px, 260px) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
-        <aside className="c08-solid">
-          <div className="c08-h"><h2 className="c08-h2">Sections</h2><span className="c08-mono c08-small">3 / 9</span></div>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "minmax(200px, 260px) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
+        <aside className="og-solid">
+          <div className="og-h"><h2 className="og-h2">Sections</h2><span className="og-mono og-small">3 / 9</span></div>
           {intakeSteps.map((s, i) => (
-            <div key={s.id} className="c08-step ody-fadein" data-state={s.state} style={stagger(i, 40)}>
-              <span className="c08-mono c08-small" style={{ color: s.state === "active" ? "var(--teal-deep)" : undefined }}>{s.index}</span>
+            <div key={s.id} className="og-step ody-fadein" data-state={s.state} style={stagger(i, 40)}>
+              <span className="og-mono og-small" style={{ color: s.state === "active" ? "var(--teal-deep)" : undefined }}>{s.index}</span>
               <div>
                 <div style={{ fontSize: 13, fontWeight: s.state === "active" ? 700 : 500 }}>{s.label}</div>
-                {s.state === "active" && <div className="c08-small" style={{ marginTop: 4 }}>{s.description}</div>}
+                {s.state === "active" && <div className="og-small" style={{ marginTop: 4 }}>{s.description}</div>}
               </div>
             </div>
           ))}
         </aside>
 
         <div>
-          <SecHead label={`${active.index} — ${active.label}`} note={active.description} right={<span className="c08-pill" data-tone="ice">HPO normalised</span>} />
-          <div className="c08-solid c08-b">
+          <SecHead label={`${active.index} — ${active.label}`} note={active.description} right={<span className="og-pill" data-tone="ice">HPO normalised</span>} />
+          <div className="og-solid og-b">
             {active.fields.map((f) => (
-              <div key={f.label} className="c08-field">
+              <div key={f.label} className="og-field">
                 <div>
                   <div style={{ fontSize: 12.5, color: "var(--ink-3)" }}>{f.label}</div>
-                  {f.hint && <div className="c08-small" style={{ marginTop: 5 }}>{f.hint}</div>}
+                  {f.hint && <div className="og-small" style={{ marginTop: 5 }}>{f.hint}</div>}
                 </div>
                 {f.kind === "chips" ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
                     {f.value.split(" · ").map((v) => (
-                      <span key={v} className="c08-pill" style={{ textTransform: "none", letterSpacing: "0.01em", fontFamily: "var(--font-ui)", fontSize: 11.5 }}>{v}</span>
+                      <span key={v} className="og-pill" style={{ textTransform: "none", letterSpacing: "0.01em", fontFamily: "var(--font-ui)", fontSize: 11.5 }}>{v}</span>
                     ))}
                   </div>
                 ) : (
-                  <div className="c08-input">{f.value}</div>
+                  <div className="og-input">{f.value}</div>
                 )}
               </div>
             ))}
           </div>
 
-          <div className="c08-sec">
+          <div className="og-sec">
             <SecHead label="09 — Documents · AI-assisted extraction" note="Parsed at your institution. Terms require clinician verification before indexing." />
-            <div className="c08-glass" style={{ overflow: "hidden" }}>
-              <div className="c08-h" style={{ borderColor: "rgba(255,255,255,0.7)" }}>
+            <div className="og-glass" style={{ overflow: "hidden" }}>
+              <div className="og-h" style={{ borderColor: "rgba(255,255,255,0.7)" }}>
                 <div>
-                  <div className="c08-mono" style={{ fontSize: 13 }}>{aiExtraction.document}</div>
-                  <div className="c08-small" style={{ marginTop: 3 }}>{aiExtraction.pages} pages · {aiExtraction.processedAt}</div>
+                  <div className="og-mono" style={{ fontSize: 13 }}>{aiExtraction.document}</div>
+                  <div className="og-small" style={{ marginTop: 3 }}>{aiExtraction.pages} pages · {aiExtraction.processedAt}</div>
                 </div>
-                <button className="c08-btn" data-variant="ghost">Upload report</button>
+                <button className="og-btn" data-variant="ghost">Upload report</button>
               </div>
-              <div className="c08-b" style={{ paddingBottom: 6 }}>
-                <div className="c08-notice">
+              <div className="og-b" style={{ paddingBottom: 6 }}>
+                <div className="og-notice">
                   <span style={{ color: "var(--teal-deep)" }}>◆</span>
                   <span><b>AI-assisted extraction, not diagnosis.</b> {aiExtraction.notice.replace("AI-assisted extraction. ", "")}</span>
                 </div>
               </div>
               <div style={{ marginTop: 10 }}>
                 {aiExtraction.terms.map((t, i) => (
-                  <div key={t.hpo} className="c08-term ody-fadein" style={stagger(i, 55, 140)}>
+                  <div key={t.hpo} className="og-term ody-fadein" style={stagger(i, 55, 140)}>
                     <div>
                       <div style={{ display: "flex", gap: 11, alignItems: "baseline", flexWrap: "wrap" }}>
                         <span style={{ fontSize: 14, fontWeight: 600, textDecoration: t.state === "rejected" ? "line-through" : undefined, color: t.state === "rejected" ? "var(--ink-4)" : undefined }}>{t.term}</span>
-                        <span className="c08-mono c08-small">{t.hpo} · {t.page}</span>
+                        <span className="og-mono og-small">{t.hpo} · {t.page}</span>
                       </div>
-                      <div className="c08-quote">{t.evidence}</div>
+                      <div className="og-quote">{t.evidence}</div>
                     </div>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10, minWidth: 160 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", justifyContent: "flex-end" }}>
-                        <span className="c08-mono c08-small">{Math.round(t.confidence * 100)}%</span>
-                        <div className="c08-bar" style={{ width: 66, height: 4 }}><i style={{ width: `${t.confidence * 100}%` }} /></div>
+                        <span className="og-mono og-small">{Math.round(t.confidence * 100)}%</span>
+                        <div className="og-bar" style={{ width: 66, height: 4 }}><i style={{ width: `${t.confidence * 100}%` }} /></div>
                       </div>
                       {t.state === "confirmed" ? (
-                        <span className="c08-pill" data-tone="teal">✓ Confirmed</span>
+                        <span className="og-pill" data-tone="teal">✓ Confirmed</span>
                       ) : t.state === "rejected" ? (
-                        <span className="c08-pill" data-tone="coral">Rejected</span>
+                        <span className="og-pill" data-tone="coral">Rejected</span>
                       ) : (
                         <div style={{ display: "flex", gap: 6 }}>
-                          <span className="c08-pill" data-tone="teal">Confirm</span>
-                          <span className="c08-pill">Edit</span>
-                          <span className="c08-pill">Reject</span>
+                          <span className="og-pill" data-tone="teal">Confirm</span>
+                          <span className="og-pill">Edit</span>
+                          <span className="og-pill">Reject</span>
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="c08-b" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
-                <span className="c08-small">3 confirmed · 3 awaiting review · 1 rejected</span>
-                <button className="c08-btn">Verify and index</button>
+              <div className="og-b" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+                <span className="og-small">3 confirmed · 3 awaiting review · 1 rejected</span>
+                <button className="og-btn">Verify and index</button>
               </div>
             </div>
           </div>
@@ -349,50 +349,50 @@ function CaseIntel() {
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 26, flexWrap: "wrap", alignItems: "flex-start", padding: "8px 4px 0" }}>
         <div style={{ maxWidth: "64ch" }}>
           <div style={{ display: "flex", gap: 11, alignItems: "center", flexWrap: "wrap" }}>
-            <h1 className="c08-h1">{c.id}</h1>
-            <span className="c08-pill" data-tone="amber">{c.status}</span>
-            <span className="c08-pill" data-tone="teal">1 potential match</span>
+            <h1 className="og-h1">{c.id}</h1>
+            <span className="og-pill" data-tone="amber">{c.status}</span>
+            <span className="og-pill" data-tone="teal">1 potential match</span>
           </div>
-          <p className="c08-lede" style={{ marginTop: 13 }}>{c.headline}</p>
+          <p className="og-lede" style={{ marginTop: 13 }}>{c.headline}</p>
         </div>
         <div style={{ display: "flex", gap: 26, alignItems: "flex-start" }}>
-          <dl className="c08-kv">
+          <dl className="og-kv">
             <dt>Country</dt><dd>{c.country}</dd>
             <dt>Age group</dt><dd>{c.ageGroup}</dd>
             <dt>Genetic</dt><dd>Unresolved</dd>
           </dl>
           <div style={{ textAlign: "center", color: "var(--teal)" }}>
             <Ring value={c.completeness} size={74} thickness={5} delay={300}>
-              <span className="c08-num" style={{ fontSize: 18, color: "var(--ink)" }}>{c.completeness}</span>
+              <span className="og-num" style={{ fontSize: 18, color: "var(--ink)" }}>{c.completeness}</span>
             </Ring>
-            <div className="c08-eyebrow" style={{ marginTop: 7 }}>Complete</div>
+            <div className="og-eyebrow" style={{ marginTop: 7 }}>Complete</div>
           </div>
         </div>
       </header>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.5fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.5fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
         <div>
           <SecHead label="Clinical summary" />
-          <div className="c08-glass c08-b">
+          <div className="og-glass og-b">
             <p style={{ fontSize: 15.5, lineHeight: 1.75, color: "var(--ink-2)", margin: 0 }}>{c.narrative}</p>
           </div>
 
-          <div className="c08-sec">
+          <div className="og-sec">
             <SecHead label="Phenotype profile" note="8 present · 1 explicitly absent" />
-            <div className="c08-solid">
-              <table className="c08-table">
+            <div className="og-solid">
+              <table className="og-table">
                 <thead><tr><th>Term</th><th style={{ width: 100 }}>HPO</th><th style={{ width: 80 }}>Onset</th><th style={{ width: 88 }}>Severity</th><th style={{ width: 92 }}>Status</th></tr></thead>
                 <tbody>
                   {c.phenotypes.map((p, i) => (
                     <tr key={p.hpo} className="ody-fadein" style={stagger(i, 36, 100)}>
                       <td style={{ fontWeight: 600, color: p.status === "Absent" ? "var(--ink-4)" : undefined }}>
                         {p.term}
-                        {!p.verified && <span className="c08-small" style={{ color: "var(--amber)" }}> · unverified</span>}
+                        {!p.verified && <span className="og-small" style={{ color: "var(--amber)" }}> · unverified</span>}
                       </td>
-                      <td className="c08-mono c08-small">{p.hpo}</td>
-                      <td className="c08-mono">{p.onset}</td>
-                      <td className="c08-small">{p.severity}</td>
-                      <td><span className="c08-pill" data-tone={p.status === "Absent" ? "coral" : p.status === "Present" ? "ice" : undefined}>{p.status}</span></td>
+                      <td className="og-mono og-small">{p.hpo}</td>
+                      <td className="og-mono">{p.onset}</td>
+                      <td className="og-small">{p.severity}</td>
+                      <td><span className="og-pill" data-tone={p.status === "Absent" ? "coral" : p.status === "Present" ? "ice" : undefined}>{p.status}</span></td>
                     </tr>
                   ))}
                 </tbody>
@@ -400,17 +400,17 @@ function CaseIntel() {
             </div>
           </div>
 
-          <div className="c08-sec">
+          <div className="og-sec">
             <SecHead label="Clinical timeline" />
-            <div className="c08-solid c08-b">
-              <div className="c08-tl">
+            <div className="og-solid og-b">
+              <div className="og-tl">
                 {c.timeline.map((t, i) => (
-                  <div key={i} className="c08-tl-item ody-rise" data-kind={t.kind} style={stagger(i, 50, 120)}>
+                  <div key={i} className="og-tl-item ody-rise" data-kind={t.kind} style={stagger(i, 50, 120)}>
                     <div style={{ display: "flex", gap: 14, alignItems: "baseline" }}>
-                      <span className="c08-mono c08-small" style={{ width: 62, flex: "none" }}>{t.age}</span>
+                      <span className="og-mono og-small" style={{ width: 62, flex: "none" }}>{t.age}</span>
                       <div>
                         <div style={{ fontSize: 13.5, fontWeight: 600 }}>{t.label}</div>
-                        <div className="c08-small" style={{ marginTop: 3 }}>{t.detail}</div>
+                        <div className="og-small" style={{ marginTop: 3 }}>{t.detail}</div>
                       </div>
                     </div>
                   </div>
@@ -421,55 +421,55 @@ function CaseIntel() {
         </div>
 
         <aside style={{ display: "grid", gap: 22 }}>
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Case completeness</h2><span className="c08-num">{c.completeness}%</span></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Case completeness</h2><span className="og-num">{c.completeness}%</span></div>
+            <div className="og-b">
               {c.completenessBreakdown.map((b, i) => (
                 <div key={b.label} style={{ display: "grid", gridTemplateColumns: "1fr 56px 30px", gap: 12, alignItems: "center", marginBottom: 10 }}>
                   <span style={{ fontSize: 12.5 }}>{b.label}</span>
-                  <div className="c08-bar" style={{ height: 4 }}><i className="ody-growx" style={{ width: `${b.value}%`, ...stagger(i, 50, 200) }} /></div>
-                  <span className="c08-mono c08-small" style={{ textAlign: "right" }}>{b.value}</span>
+                  <div className="og-bar" style={{ height: 4 }}><i className="ody-growx" style={{ width: `${b.value}%`, ...stagger(i, 50, 200) }} /></div>
+                  <span className="og-mono og-small" style={{ textAlign: "right" }}>{b.value}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Genetic information</h2></div>
-            <div className="c08-b">
-              <p className="c08-small" style={{ marginTop: 0 }}>{c.geneticSummary}</p>
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Genetic information</h2></div>
+            <div className="og-b">
+              <p className="og-small" style={{ marginTop: 0 }}>{c.geneticSummary}</p>
               {c.genetics.map((g, i) => (
                 <div key={i} style={{ padding: "11px 0", borderTop: "1px solid var(--line)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
-                    <span className="c08-mono" style={{ fontSize: 12.5 }}>{g.gene === "—" ? g.variant : `${g.gene} ${g.variant}`}</span>
-                    <span className="c08-pill" data-tone={g.classification.startsWith("VUS") ? "amber" : undefined}>{g.classification}</span>
+                    <span className="og-mono" style={{ fontSize: 12.5 }}>{g.gene === "—" ? g.variant : `${g.gene} ${g.variant}`}</span>
+                    <span className="og-pill" data-tone={g.classification.startsWith("VUS") ? "amber" : undefined}>{g.classification}</span>
                   </div>
-                  <div className="c08-small" style={{ marginTop: 4 }}>{g.note}</div>
+                  <div className="og-small" style={{ marginTop: 4 }}>{g.note}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Potential matching signals</h2><span className="c08-pill" data-tone="teal">{c.signals.length}</span></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Potential matching signals</h2><span className="og-pill" data-tone="teal">{c.signals.length}</span></div>
+            <div className="og-b">
               {c.signals.map((s, i) => (
                 <div key={i} style={{ display: "grid", gridTemplateColumns: "24px 1fr", gap: 10, padding: "8px 0", borderBottom: i < c.signals.length - 1 ? "1px solid var(--line)" : undefined }}>
-                  <span className="c08-mono c08-small">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="og-mono og-small">{String(i + 1).padStart(2, "0")}</span>
                   <span style={{ fontSize: 12.5 }}>{s}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Family pattern</h2></div>
-            <div className="c08-b" style={{ color: "var(--ink-2)" }}><Pedigree consanguineous affected={[0, 2]} size={210} /></div>
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Family pattern</h2></div>
+            <div className="og-b" style={{ color: "var(--ink-2)" }}><Pedigree consanguineous affected={[0, 2]} size={210} /></div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Negative evidence</h2></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Negative evidence</h2></div>
+            <div className="og-b">
               {c.negativeEvidence.map((n, i) => (
                 <div key={i} style={{ display: "flex", gap: 10, fontSize: 12.5, padding: "6px 0", color: "var(--ink-2)" }}><span style={{ color: "var(--coral)" }}>×</span>{n}</div>
               ))}
@@ -488,30 +488,30 @@ function Match() {
     <>
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 24, flexWrap: "wrap", alignItems: "flex-end", padding: "8px 4px 0" }}>
         <div>
-          <div className="c08-eyebrow">Potential cross-border match · {match.id}</div>
-          <h1 className="c08-h1" style={{ marginTop: 14 }}>{caseKZ.id} ↔ {caseDE.id}</h1>
+          <div className="og-eyebrow">Potential cross-border match · {match.id}</div>
+          <h1 className="og-h1" style={{ marginTop: 14 }}>{caseKZ.id} ↔ {caseDE.id}</h1>
           <div style={{ display: "flex", gap: 12, marginTop: 13, alignItems: "center", flexWrap: "wrap" }}>
-            <span className="c08-pill" data-tone="teal" style={{ height: 27 }}>{match.confidenceLabel}</span>
-            <span className="c08-small">{match.confidenceNote}</span>
+            <span className="og-pill" data-tone="teal" style={{ height: 27 }}>{match.confidenceLabel}</span>
+            <span className="og-small">{match.confidenceNote}</span>
           </div>
         </div>
         <Disclaimer />
       </header>
 
-      <section className="c08-sec">
-        <div className="c08-glass ody-rise" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", overflow: "hidden" }}>
+      <section className="og-sec">
+        <div className="og-glass ody-rise" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", overflow: "hidden" }}>
           {[caseKZ, caseDE].map((c, i) => (
             <div key={c.id} style={{ padding: "22px 24px", borderRight: i === 0 ? "1px solid var(--line)" : undefined }}>
-              <div className="c08-eyebrow">{i === 0 ? "Your case" : "Network case"}</div>
+              <div className="og-eyebrow">{i === 0 ? "Your case" : "Network case"}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginTop: 10 }}>
-                <span className="c08-num" style={{ fontSize: 28, color: i === 1 ? "var(--teal-deep)" : undefined }}>{c.id}</span>
+                <span className="og-num" style={{ fontSize: 28, color: i === 1 ? "var(--teal-deep)" : undefined }}>{c.id}</span>
                 <span style={{ fontSize: 15 }}>{c.country}</span>
               </div>
-              <div className="c08-small" style={{ marginTop: 7 }}>{c.institution}</div>
-              <dl className="c08-kv" style={{ marginTop: 14 }}>
+              <div className="og-small" style={{ marginTop: 7 }}>{c.institution}</div>
+              <dl className="og-kv" style={{ marginTop: 14 }}>
                 <dt>Age</dt><dd>{c.ageGroup}</dd>
                 <dt>Status</dt><dd>{c.status}</dd>
-                <dt>Complete</dt><dd className="c08-mono">{c.completeness}%</dd>
+                <dt>Complete</dt><dd className="og-mono">{c.completeness}%</dd>
               </dl>
             </div>
           ))}
@@ -521,38 +521,38 @@ function Match() {
         </div>
       </section>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.6fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
         <div>
           <SecHead label="Evidence supporting similarity" note="Each group assessed independently. A score describes similarity of recorded evidence, not the probability of a diagnosis." />
-          <div className="c08-solid c08-b">
+          <div className="og-solid og-b">
             {matchEvidence.map((e, i) => (
-              <div key={e.id} className="c08-ev-row ody-fadein" style={stagger(i, 55, 100)}>
+              <div key={e.id} className="og-ev-row ody-fadein" style={stagger(i, 55, 100)}>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 700 }}>{e.label}</div>
-                  <span className="c08-pill" data-tone={e.direction === "divergent" ? "amber" : undefined} style={{ marginTop: 7, height: 20 }}>
+                  <span className="og-pill" data-tone={e.direction === "divergent" ? "amber" : undefined} style={{ marginTop: 7, height: 20 }}>
                     {e.direction === "divergent" ? "Divergent" : e.weight}
                   </span>
                 </div>
                 <div>
-                  <div className="c08-num" style={{ fontSize: 24, color: e.direction === "divergent" ? "var(--amber)" : "var(--teal-deep)" }}>{e.score}</div>
-                  <div className="c08-bar" style={{ marginTop: 6, height: 5 }}>
+                  <div className="og-num" style={{ fontSize: 24, color: e.direction === "divergent" ? "var(--amber)" : "var(--teal-deep)" }}>{e.score}</div>
+                  <div className="og-bar" style={{ marginTop: 6, height: 5 }}>
                     <i className="ody-growx" style={{ width: `${e.score}%`, background: e.direction === "divergent" ? "var(--amber)" : undefined, ...stagger(i, 55, 180) }} />
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.6 }}>{e.summary}</div>
                   <div style={{ display: "flex", gap: 18, marginTop: 7, flexWrap: "wrap" }}>
-                    <span className="c08-mono c08-small">KZ {e.kzValue}</span>
-                    <span className="c08-mono c08-small" style={{ color: "var(--teal-deep)" }}>DE {e.deValue}</span>
+                    <span className="og-mono og-small">KZ {e.kzValue}</span>
+                    <span className="og-mono og-small" style={{ color: "var(--teal-deep)" }}>DE {e.deValue}</span>
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="c08-sec">
+          <div className="og-sec">
             <SecHead label="Where the cases diverge" note="Divergence is recorded, not hidden" />
-            <div className="c08-solid c08-b">
+            <div className="og-solid og-b">
               {match.divergenceNotes.map((d, i) => (
                 <div key={i} style={{ display: "grid", gridTemplateColumns: "22px 1fr", gap: 12, padding: "11px 0", borderBottom: i < 2 ? "1px solid var(--line)" : undefined }}>
                   <span style={{ color: "var(--amber)" }}>△</span>
@@ -564,43 +564,43 @@ function Match() {
         </div>
 
         <aside style={{ display: "grid", gap: 22 }}>
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">How this match was found</h2></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">How this match was found</h2></div>
+            <div className="og-b">
               {match.reasoningSteps.map((s, i) => (
                 <div key={s.id} className="ody-fadein" style={{ display: "grid", gridTemplateColumns: "22px 1fr", gap: 12, paddingBottom: 15, ...stagger(i, 80, 200) }}>
-                  <span className="c08-mono c08-small" style={{ color: "var(--teal-deep)" }}>{String(i + 1).padStart(2, "0")}</span>
+                  <span className="og-mono og-small" style={{ color: "var(--teal-deep)" }}>{String(i + 1).padStart(2, "0")}</span>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 600 }}>{s.label}</div>
-                    <div className="c08-small" style={{ marginTop: 3 }}>{s.detail}</div>
+                    <div className="og-small" style={{ marginTop: 3 }}>{s.detail}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-glass c08-b">
-            <div className="c08-eyebrow">Requires clinician review</div>
+          <div className="og-glass og-b">
+            <div className="og-eyebrow">Requires clinician review</div>
             <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.7, marginTop: 10 }}>{match.proposedAction}.</p>
             <ol style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.7 }}>
               {match.nextSteps.map((n) => <li key={n} style={{ marginBottom: 5 }}>{n}</li>)}
             </ol>
             <div style={{ display: "flex", gap: 10, marginTop: 18, flexWrap: "wrap" }}>
-              <button className="c08-btn">Request collaboration</button>
-              <button className="c08-btn" data-variant="ghost">Not a match</button>
+              <button className="og-btn">Request collaboration</button>
+              <button className="og-btn" data-variant="ghost">Not a match</button>
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Other candidates</h2><span className="c08-eyebrow">Same query</span></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Other candidates</h2><span className="og-eyebrow">Same query</span></div>
+            <div className="og-b">
               {otherCandidates.map((o, i) => (
                 <div key={o.id} style={{ display: "flex", justifyContent: "space-between", gap: 12, padding: "11px 0", borderBottom: i < 2 ? "1px solid var(--line)" : undefined }}>
                   <div>
-                    <div className="c08-mono" style={{ fontSize: 12.5 }}>{o.id} · {o.country}</div>
-                    <div className="c08-small" style={{ marginTop: 3 }}>{o.note}</div>
+                    <div className="og-mono" style={{ fontSize: 12.5 }}>{o.id} · {o.country}</div>
+                    <div className="og-small" style={{ marginTop: 3 }}>{o.note}</div>
                   </div>
-                  <span className="c08-num" style={{ fontSize: 17, color: "var(--ink-3)" }}>{o.score}</span>
+                  <span className="og-num" style={{ fontSize: 17, color: "var(--ink-3)" }}>{o.score}</span>
                 </div>
               ))}
             </div>
@@ -620,15 +620,15 @@ function Compare() {
     <>
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 22, flexWrap: "wrap", alignItems: "flex-end", padding: "8px 4px 0" }}>
         <div>
-          <div className="c08-eyebrow">Case comparison · {match.id}</div>
-          <h1 className="c08-h1" style={{ marginTop: 14 }}>Kazakhstan / Germany</h1>
+          <div className="og-eyebrow">Case comparison · {match.id}</div>
+          <h1 className="og-h1" style={{ marginTop: 14 }}>Kazakhstan / Germany</h1>
         </div>
         <Disclaimer />
       </header>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
-        <div className="c08-solid c08-b ody-rise">
-          <div className="c08-eyebrow">Phenotype overlap</div>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: 16 }}>
+        <div className="og-solid og-b ody-rise">
+          <div className="og-eyebrow">Phenotype overlap</div>
           <svg viewBox="0 0 160 92" style={{ width: "100%", marginTop: 12 }} aria-hidden>
             <circle className="ody-nodein" cx="60" cy="46" r="38" fill="var(--ink)" fillOpacity="0.05" stroke="var(--ink-3)" strokeWidth="0.8" />
             <circle className="ody-nodein" style={{ "--d": "180ms" } as React.CSSProperties} cx="100" cy="46" r="38" fill="var(--teal)" fillOpacity="0.14" stroke="var(--teal)" strokeWidth="0.8" />
@@ -637,14 +637,14 @@ function Compare() {
             <text x="126" y="51" textAnchor="middle" fontSize="13" fontFamily="var(--font-data)" fill="var(--teal-deep)">{phenotypeOverlap.onlyDE}</text>
           </svg>
         </div>
-        <div className="c08-solid c08-b ody-rise" style={stagger(1, 110)}>
-          <div className="c08-eyebrow">Clinical trajectory · months</div>
+        <div className="og-solid og-b ody-rise" style={stagger(1, 110)}>
+          <div className="og-eyebrow">Clinical trajectory · months</div>
           <div style={{ marginTop: 12, color: "var(--ink-4)", "--track-a": "var(--ink-2)", "--track-b": "var(--teal)" } as React.CSSProperties}>
             <TrajectoryChart milestones={trajectory.milestones} a={trajectory.kz} b={trajectory.de} max={trajectory.maxMonths} labelA="001" labelB="742" height={118} rowLabels />
           </div>
         </div>
-        <div className="c08-solid c08-b ody-rise" style={stagger(2, 110)}>
-          <div className="c08-eyebrow">Family pattern</div>
+        <div className="og-solid og-b ody-rise" style={stagger(2, 110)}>
+          <div className="og-eyebrow">Family pattern</div>
           <div style={{ display: "flex", gap: 10, marginTop: 8, flexWrap: "wrap" }}>
             <div style={{ color: "var(--ink-2)" }}><Pedigree consanguineous affected={[0, 2]} size={144} /></div>
             <div style={{ color: "var(--teal)" }}><Pedigree consanguineous={false} affected={[1]} size={144} /></div>
@@ -652,23 +652,23 @@ function Compare() {
         </div>
       </section>
 
-      <section className="c08-sec">
-        <div className="c08-solid" style={{ overflow: "hidden" }}>
-          <div className="c08-cmp" style={{ background: "rgba(255,255,255,0.55)", borderBottom: "1px solid var(--line-2)", fontFamily: "var(--font-data)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-4)", padding: "13px 18px" }}>
+      <section className="og-sec">
+        <div className="og-solid" style={{ overflow: "hidden" }}>
+          <div className="og-cmp" style={{ background: "rgba(255,255,255,0.55)", borderBottom: "1px solid var(--line-2)", fontFamily: "var(--font-data)", fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--ink-4)", padding: "13px 18px" }}>
             <span>Signal</span><span>{caseKZ.id} · KZ</span><span style={{ color: "var(--teal-deep)" }}>{caseDE.id} · DE</span><span style={{ textAlign: "right" }}>Agreement</span>
           </div>
           {comparisonGroups.map((g, gi) => (
             <div key={g.group}>
               <div style={{ padding: "13px 18px 7px", borderBottom: "1px solid var(--line)" }}>
-                <span className="c08-eyebrow">{g.group}</span>
+                <span className="og-eyebrow">{g.group}</span>
               </div>
               {g.rows.map((r, i) => (
-                <div key={r.label} className="c08-cmp ody-fadein" style={stagger(i, 22, gi * 45)}>
+                <div key={r.label} className="og-cmp ody-fadein" style={stagger(i, 22, gi * 45)}>
                   <span style={{ color: "var(--ink-3)" }}>{r.label}</span>
                   <span>{r.kz}</span>
                   <span style={{ color: r.agreement === "only-de" ? "var(--teal-deep)" : undefined }}>{r.de}</span>
                   <span style={{ textAlign: "right" }}>
-                    <span className="c08-pill" data-tone={r.agreement === "match" ? "teal" : r.agreement === "differ" ? "amber" : r.agreement.startsWith("only") ? "ice" : undefined} style={{ height: 19, fontSize: 9 }}>{LABEL[r.agreement]}</span>
+                    <span className="og-pill" data-tone={r.agreement === "match" ? "teal" : r.agreement === "differ" ? "amber" : r.agreement.startsWith("only") ? "ice" : undefined} style={{ height: 19, fontSize: 9 }}>{LABEL[r.agreement]}</span>
                   </span>
                 </div>
               ))}
@@ -677,12 +677,12 @@ function Compare() {
         </div>
       </section>
 
-      <section className="c08-sec" style={{ display: "flex", justifyContent: "space-between", gap: 20, flexWrap: "wrap", alignItems: "center" }}>
-        <div className="c08-notice" style={{ maxWidth: "68ch" }}>
+      <section className="og-sec" style={{ display: "flex", justifyContent: "space-between", gap: 20, flexWrap: "wrap", alignItems: "center" }}>
+        <div className="og-notice" style={{ maxWidth: "68ch" }}>
           <span style={{ color: "var(--teal-deep)" }}>◆</span>
           <span><b>Requires clinician review.</b> This comparison describes similarity between two recorded cases; it does not establish a diagnosis.</span>
         </div>
-        <button className="c08-btn">Open collaboration room</button>
+        <button className="og-btn">Open collaboration room</button>
       </section>
     </>
   );
@@ -696,21 +696,21 @@ function Room() {
     <>
       <header className="ody-rise" style={{ display: "flex", justifyContent: "space-between", gap: 26, flexWrap: "wrap", alignItems: "flex-start", padding: "8px 4px 0" }}>
         <div>
-          <div className="c08-eyebrow">Secure collaboration · {collaboration.roomId}</div>
-          <h1 className="c08-h1" style={{ marginTop: 14 }}>{collaboration.title}</h1>
+          <div className="og-eyebrow">Secure collaboration · {collaboration.roomId}</div>
+          <h1 className="og-h1" style={{ marginTop: 14 }}>{collaboration.title}</h1>
           <div style={{ display: "flex", gap: 10, marginTop: 13, flexWrap: "wrap" }}>
-            <span className="c08-pill" data-tone="teal">◈ End-to-end encrypted</span>
-            <span className="c08-pill">Opened {collaboration.opened}</span>
+            <span className="og-pill" data-tone="teal">◈ End-to-end encrypted</span>
+            <span className="og-pill">Opened {collaboration.opened}</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
           {collaboration.participants.map((p, i) => (
-            <div key={p.networkId} className="c08-glass" style={{ padding: "14px 18px", minWidth: 225 }}>
+            <div key={p.networkId} className="og-glass" style={{ padding: "14px 18px", minWidth: 225 }}>
               <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-                <div className="c08-av" data-a={i === 0}>{p.initials}</div>
+                <div className="og-av" data-a={i === 0}>{p.initials}</div>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 700 }}>{p.name}</div>
-                  <div className="c08-small">{p.city}, {p.country}</div>
+                  <div className="og-small">{p.city}, {p.country}</div>
                 </div>
               </div>
             </div>
@@ -718,8 +718,8 @@ function Room() {
         </div>
       </header>
 
-      <section className="c08-sec">
-        <div className="c08-solid c08-b">
+      <section className="og-sec">
+        <div className="og-solid og-b">
           <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap" }}>
             {s.stages.map((st, i) => (
               <React.Fragment key={st}>
@@ -736,82 +736,82 @@ function Room() {
         </div>
       </section>
 
-      <section className="c08-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
+      <section className="og-sec" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.55fr) minmax(0, 1fr)", gap: 24, alignItems: "start" }}>
         <div>
           <SecHead label="Clinical discussion" note={collaboration.security} />
-          <div className="c08-solid c08-b">
+          <div className="og-solid og-b">
             {collaboration.messages.map((m, i) => (
-              <div key={m.id} className="c08-msg ody-rise" data-side={m.author} style={stagger(i, 65, 80)}>
-                {m.author !== "system" && <div className="c08-av" data-a={m.author === "A"}>{m.author === "A" ? doctor.initials : counterpart.initials}</div>}
+              <div key={m.id} className="og-msg ody-rise" data-side={m.author} style={stagger(i, 65, 80)}>
+                {m.author !== "system" && <div className="og-av" data-a={m.author === "A"}>{m.author === "A" ? doctor.initials : counterpart.initials}</div>}
                 <div>
                   <div style={{ display: "flex", gap: 11, alignItems: "baseline", flexWrap: "wrap" }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: m.author === "system" ? "var(--ink-3)" : undefined }}>{m.author === "system" ? "ODYSSEY" : m.name}</span>
-                    {m.author !== "system" && <span className="c08-small">{m.role}</span>}
-                    <span className="c08-mono c08-small" style={{ marginLeft: "auto" }}>{m.time}</span>
-                    {m.kind === "proposal" && <span className="c08-pill" data-tone="teal" style={{ height: 19, fontSize: 9 }}>Proposal</span>}
+                    {m.author !== "system" && <span className="og-small">{m.role}</span>}
+                    <span className="og-mono og-small" style={{ marginLeft: "auto" }}>{m.time}</span>
+                    {m.kind === "proposal" && <span className="og-pill" data-tone="teal" style={{ height: 19, fontSize: 9 }}>Proposal</span>}
                   </div>
                   <p style={{ fontSize: 13.5, lineHeight: 1.72, color: "var(--ink-2)", margin: "8px 0 0" }}>{m.body}</p>
                   {m.attachment && (
                     <div style={{ marginTop: 12, borderRadius: 10, border: "1px solid var(--line)", background: "rgba(255,255,255,0.6)", padding: "10px 14px" }}>
-                      <div className="c08-mono" style={{ fontSize: 12 }}>{m.attachment.label}</div>
-                      <div className="c08-small" style={{ marginTop: 2 }}>{m.attachment.meta}</div>
+                      <div className="og-mono" style={{ fontSize: 12 }}>{m.attachment.label}</div>
+                      <div className="og-small" style={{ marginTop: 2 }}>{m.attachment.meta}</div>
                     </div>
                   )}
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
-              <div className="c08-input" style={{ flex: 1, color: "var(--ink-4)" }}>Write a clinical note…</div>
-              <button className="c08-btn">Send</button>
+              <div className="og-input" style={{ flex: 1, color: "var(--ink-4)" }}>Write a clinical note…</div>
+              <button className="og-btn">Send</button>
             </div>
           </div>
         </div>
 
         <aside style={{ display: "grid", gap: 22 }}>
-          <div className="c08-glass c08-b">
+          <div className="og-glass og-b">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <h2 className="c08-h2">Verification status</h2>
-              <span className="c08-pill" data-tone="amber">1 of 2</span>
+              <h2 className="og-h2">Verification status</h2>
+              <span className="og-pill" data-tone="amber">1 of 2</span>
             </div>
             <div style={{ display: "flex", gap: 11, paddingBottom: 13, borderBottom: "1px solid var(--line)" }}>
               <span style={{ color: "var(--teal-deep)" }}>✓</span>
-              <div><div style={{ fontSize: 13 }}>{s.verificationA}</div><div className="c08-small" style={{ marginTop: 3 }}>Evidence supports a clinically meaningful similarity</div></div>
+              <div><div style={{ fontSize: 13 }}>{s.verificationA}</div><div className="og-small" style={{ marginTop: 3 }}>Evidence supports a clinically meaningful similarity</div></div>
             </div>
             <div style={{ display: "flex", gap: 11, paddingTop: 13 }}>
               <span style={{ color: "var(--amber)" }}>○</span>
-              <div><div style={{ fontSize: 13 }}>{s.verificationB}</div><div className="c08-small" style={{ marginTop: 3 }}>Awaiting second clinician</div></div>
+              <div><div style={{ fontSize: 13 }}>{s.verificationB}</div><div className="og-small" style={{ marginTop: 3 }}>Awaiting second clinician</div></div>
             </div>
-            <p className="c08-small" style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
+            <p className="og-small" style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid var(--line)" }}>
               A connection enters the network record only when two independent clinicians verify it.
             </p>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Shared evidence</h2><span className="c08-eyebrow">{collaboration.documents.length}</span></div>
-            <div className="c08-b">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Shared evidence</h2><span className="og-eyebrow">{collaboration.documents.length}</span></div>
+            <div className="og-b">
               {collaboration.documents.map((d, i) => (
                 <div key={d.label} style={{ padding: "10px 0", borderBottom: i < collaboration.documents.length - 1 ? "1px solid var(--line)" : undefined }}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
-                    <span className="c08-mono" style={{ fontSize: 12 }}>{d.label}</span>
-                    <span className="c08-pill" style={{ height: 19, fontSize: 9 }}>{d.kind}</span>
+                    <span className="og-mono" style={{ fontSize: 12 }}>{d.label}</span>
+                    <span className="og-pill" style={{ height: 19, fontSize: 9 }}>{d.kind}</span>
                   </div>
-                  <div className="c08-small" style={{ marginTop: 3 }}>{d.meta}</div>
+                  <div className="og-small" style={{ marginTop: 3 }}>{d.meta}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="c08-solid">
-            <div className="c08-h"><h2 className="c08-h2">Decision log</h2><span className="c08-eyebrow">Immutable</span></div>
-            <div className="c08-b">
-              <div className="c08-tl">
+          <div className="og-solid">
+            <div className="og-h"><h2 className="og-h2">Decision log</h2><span className="og-eyebrow">Immutable</span></div>
+            <div className="og-b">
+              <div className="og-tl">
                 {collaboration.decisionLog.map((d) => (
-                  <div key={d.id} className="c08-tl-item" data-kind={d.state === "done" ? "treatment" : "stable"} style={{ paddingBottom: 16 }}>
+                  <div key={d.id} className="og-tl-item" data-kind={d.state === "done" ? "treatment" : "stable"} style={{ paddingBottom: 16 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                       <span style={{ fontSize: 12.5, color: d.state === "blocked" ? "var(--ink-4)" : undefined }}>{d.action}</span>
-                      <span className="c08-mono c08-small">{d.time}</span>
+                      <span className="og-mono og-small">{d.time}</span>
                     </div>
-                    <div className="c08-small" style={{ marginTop: 2 }}>{d.actor}</div>
+                    <div className="og-small" style={{ marginTop: 2 }}>{d.actor}</div>
                   </div>
                 ))}
               </div>

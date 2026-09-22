@@ -1,98 +1,138 @@
-# ODYSSEY — Design Lab
+# ODYSSEY — Global Rare Disease Match Network
 
-**Global Rare Disease Match Network.** Design exploration phase: seven visual directions for the same
-product, rendered against one shared synthetic dataset so they can be compared on identical content.
+**The answer may already exist.**
+
+ODYSSEY helps clinicians with difficult unresolved cases find potentially related clinical cases,
+understand *why* two cases are similar, connect with the other clinician, and record clinically
+verified knowledge back into the network.
 
 > **DEMONSTRATION DATA — NOT FOR CLINICAL USE.**
-> No real patients, clinicians, institutions or genomic results are represented. ODYSSEY is not a
-> diagnostic AI: the interface communicates *potential match*, *evidence similarity*, *AI-assisted
-> extraction*, *requires clinician review* and *clinically verified* — never a diagnosis.
+> Every case, clinician, variant, laboratory value and result in this application is synthetic. No
+> real patients, institutions or genomic results are represented.
+>
+> **ODYSSEY is not a diagnostic system.** It never claims that AI diagnosed a patient. Output is
+> framed as *Potential Match*, *Evidence Similarity*, *AI-Assisted Extraction*, *Requires Clinician
+> Review* and *Clinically Verified*.
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000/design-lab
+npm run dev      # http://localhost:3000  → /enter
 ```
 
-`npm run build` · `npm run typecheck`
+`npm run build` · `npm run typecheck` · `npm run e2e` (drives the whole P0 flow in a headless browser)
 
-## The lab
+No account, backend, database or API key is required. State lives in the browser.
 
-| Route | What it shows |
+## The demo flow
+
+The application supports this story end to end, and `scripts/e2e.mjs` asserts every step of it:
+
+```
+Enter demo (Dr Seitkali, Kazakhstan)
+  ↓ create case  /cases/new
+  ↓ upload report + simulated extraction  /cases/[id]/verify
+  ↓ clinician confirms / edits / removes each proposed term
+  ↓ Find matches  → deterministic federated search
+  ↓ ODY-742, Germany surfaced as a strong potential match
+  ↓ WHY this match  /matches/[id]
+  ↓ compare cases  /matches/[id]/compare
+  ↓ request clinical connection
+  ↓ switch to Dr Brandt (Germany) → accept
+  ↓ collaboration room: evidence stays visible beside the discussion
+  ↓ both clinicians verify clinical relevance
+  ↓ knowledge contribution recorded  /knowledge
+```
+
+Two further states are real, not mocked screens:
+
+- **No strong match** — run a search on `ODY-027`. Nothing clears the review threshold, and the case
+  stays in the network for re-evaluation.
+- **Not yet searched** — a case that has never been compared is distinct from one with no match.
+
+### Switching clinician
+
+The whole story runs across two people. The chip in the header switches between Dr Seitkali (KZ) and
+Dr Brandt (DE). Switching changes whose cases, notifications and verification tasks you see; the
+underlying data is shared.
+
+## What is real and what is simulated
+
+| | |
 | --- | --- |
-| `/design-lab` | Index of all ten directions plus the product spine |
-| `/design-lab/[concept]/[screen]` | One concept rendering one of the six core screens (42 routes) |
+| **Matching engine** | Real code, deterministic, derived from structured fields — `src/store/matching.ts`. Same pair always gives the same numbers. Labelled **SIMULATED MATCHING ENGINE**: the weighting is a product simulation, not a validated clinical method. |
+| **AI extraction** | **SIMULATED.** No model is called. A fixed synthetic document maps to a fixed list of proposed terms, each with the sentence it came from — `src/store/extraction.ts`. |
+| **Clinical verification** | Real state transition. Confirms that the *case connection* is clinically relevant — never that a patient has a disease. Two independent clinicians are required. |
+| **Audit log** | Every action writes an event. Visible at `/admin`. |
+| **Backend** | None. No database, no auth, no medical API, no blockchain. `localStorage` only. |
 
-Keyboard, anywhere in the lab: `1`–`7` switch direction · `↑`/`↓` previous/next direction ·
-`←`/`→` previous/next screen · `G` info panel.
+### How a match is scored
 
-Only the lab chrome navigates. Each direction's own menu is rendered as state, not as links.
+Eight evidence groups, each computed independently and weighted:
 
-### Directions
-
-Three further directions (04 Evidence Archive, 07 Quiet Luxury, 10 Human + Machine) were explored
-and cut; they remain in the git history.
-
-| # | Name | Visual thesis |
+| Group | Derived from | Weight |
 | --- | --- | --- |
-| 01 | Clinical Command | Hospital command centre — architectural grid, graphite, restrained cobalt |
-| 02 | Molecular Atlas | Dark molecular intelligence — node graphs, luminous cyan, clinical not cyberpunk |
-| 03 | Swiss Clinical | International Typographic Style — black, white, one red; information *is* the design |
-| 05 | Precision Laboratory | Diagnostic instrumentation — calibration rules, thresholds, signal-green |
-| 06 | Global Network | Geography as the organising device — nodes, institutions, one line KZ → DE |
-| 08 | Bio Glass | Biological intelligence — ice and mint, depth rationed to one floating layer |
-| 09 | Medical Operating System | Split panes, command palette, evidence inspector, high density |
+| Phenotype similarity | Jaccard over present HPO terms × severity concordance bonus | 22% |
+| Clinical trajectory | Milestone onset alignment within an 8-month window × event ordering | 16% |
+| Genetic evidence | Shared gene, identical variant, allele completeness, classification concordance | 18% |
+| Laboratory pattern | Analyte coverage × value proximity | 12% |
+| Imaging pattern | Jaccard over structured radiological features | 12% |
+| Temporal similarity | First-abnormality proximity and length of the diagnostic course | 8% |
+| Family pattern | Consanguinity concordance and shared regional ancestry | 6% |
+| Negative evidence | Jaccard over canonicalised exclusions | 6% |
 
-### Screens (identical content in all ten)
-
-1. **Doctor Dashboard** — attention queue, case queue, network activity, contribution, the new match
-2. **Create Case** — nine-section structured intake, upload, AI extraction, clinician verification
-3. **Case Intelligence** — ODY-001 phenotype, genetics, timeline, completeness, matching signals
-4. **Potential Match** — ODY-001 ↔ ODY-742, evidence-by-evidence, provenance, divergence
-5. **Case Comparison** — Kazakhstan vs Germany, signal by signal, agreement marked per row
-6. **Collaboration Room** — doctor ↔ doctor, evidence, decision log, two-clinician verification
+Scores are truncated, never rounded up. Candidates below **55** are never surfaced; **80+** is labelled
+a strong potential match. For the demo pair the engine returns **85** overall (phenotype 91,
+trajectory 87, genetics 77, laboratory 75, imaging 100, temporal 91, family 54, negative 100).
 
 ## Architecture
 
 ```
 app/
-  layout.tsx                     fonts (13 families, next/font)
-  globals.css                    shared motion vocabulary + lab chrome tokens
-  design-lab/page.tsx            index of the ten directions
-  design-lab/[concept]/[screen]/ statically generated, 42 routes
+  enter/                     demo entry — pick a clinician, no account
+  (app)/                     authenticated shell: nav, notifications, clinician switcher
+    dashboard  cases  cases/new  cases/[id]  cases/[id]/verify  cases/[id]/matches
+    matches  matches/[id]  matches/[id]/compare
+    collaboration  collaboration/[id]  knowledge  network  notifications  settings  admin
 src/
-  data/odyssey.ts                the single synthetic dataset — every concept reads this
-  data/world.ts                  generated coastline + dot matrix (scripts/build-world.mjs)
-  lib/concepts.ts                concept + screen registry
-  components/LabFrame.tsx        lab chrome: selector, keyboard, info panel
-  components/kit.tsx             token-driven primitives (map, radar, pedigree, ring, …)
-  concepts/NN-name/theme.css     that direction's complete token system, scoped to .cNN
-  concepts/NN-name/index.tsx     that direction's chassis + six screens
+  store/types.ts             domain models (Case, Match, Collaboration, Contribution, …)
+  store/seed.ts              synthetic seed data
+  store/matching.ts          deterministic matching engine
+  store/extraction.ts        simulated AI extraction
+  store/store.tsx            reducer + context + localStorage, writes audit events
+  lib/compare.ts             builds the side-by-side comparison
+  ui/theme.css               Bio Glass design tokens and components
+  ui/app.css                 application shell and interaction components
+  ui/primitives.tsx          Panel, Button, Pill, Modal, Tabs, StepBar, toasts…
+  components/kit.tsx         token-driven visualisations (map, radar, pedigree, trajectory)
 ```
 
-Every primitive in `components/kit.tsx` paints with `currentColor` or a CSS variable, so a concept
-restyles it entirely from its own `theme.css`. Nothing in the kit carries a colour of its own.
+**Connecting a real API later:** `src/store/seed.ts` is the only source of data and is shaped like an
+API response. Components dispatch intent (`{ type: "runMatching", caseId }`) and never fetch, so the
+action bodies in `reducer` can be replaced with network calls without touching the UI.
 
-### Adding integrations later
+## Design
 
-The data module is the only source of truth and is already shaped like an API response
-(`CaseRecord`, `EvidenceDimension`, `Message`, `NetworkNode`). Replacing it with fetched data
-requires no change to any concept. No backend, database, auth, blockchain or medical API is present
-or assumed.
+The interface is **Bio Glass** — the direction chosen from the earlier exploration. Ice and mint on a
+soft atmospheric ground; glass is rationed to the shell bar and one focal panel per screen, with
+everything else flat. Tokens live in `src/ui/theme.css` and are the single source of truth.
 
-## Scripts
+The design lab that produced it is still in the repository at `/design-lab` for reference. It is not
+linked from the application: those screens are static mockups.
 
-`scripts/build-world.mjs` regenerates `src/data/world.ts` from Natural Earth (build-time only).
-`scripts/shot.mjs` and `scripts/sweep.mjs` are local QA helpers (screenshots, overflow/error sweep).
+## Testing
 
-### QA helper scripts
+```bash
+npm run e2e       # 70 assertions across the whole P0 flow, fails on any console error
+node scripts/sweep-app.mjs   # every route at 1500 / 1100 / 390 px, checks for overflow and errors
+```
 
-`scripts/shot.mjs` (screenshots) and `scripts/sweep.mjs` (overflow/console sweep across every
-screen) are local tools, not part of the build. `scripts/build-world.mjs` regenerates the committed
-`src/data/world.ts`. They need packages that are deliberately **not** in `package.json`, so Vercel
-does not install them on every deploy:
+Helper scripts need packages deliberately kept out of `package.json` so they are not installed on
+every deploy:
 
 ```bash
 npm i -D playwright-core world-atlas topojson-client d3-geo
 ```
+
+`scripts/build-world.mjs` regenerates the committed `src/data/world.ts` from Natural Earth.
