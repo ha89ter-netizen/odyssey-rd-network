@@ -26,6 +26,9 @@ npm run dev      # http://localhost:3000  → /enter
 
 No account, backend, database or API key is required. State lives in the browser.
 
+**Deploys:** the repository is connected to Vercel, so a push to `main` builds and promotes to
+production automatically. `npx vercel --prod` still works for an out-of-band deploy.
+
 ## The demo flow
 
 The application supports this story end to end, and `scripts/e2e.mjs` asserts every step of it:
