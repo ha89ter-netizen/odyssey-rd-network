@@ -30,11 +30,12 @@ export function FindMatches({ record, label, variant = "solid" }: {
     setStage(0);
     timers.current.forEach(window.clearTimeout);
     timers.current = [];
-    STAGES.forEach((_, i) => {
-      if (i === 0) return;
+    // One tick per stage, plus a final tick that marks every stage complete so
+    // the dialog never sits at 100% with an unfinished-looking last row.
+    for (let i = 1; i <= STAGES.length; i += 1) {
       timers.current.push(window.setTimeout(() => setStage(i), i * 460));
-    });
-    // Dispatch and navigate once the last stage has been shown.
+    }
+    // Dispatch and navigate once the last stage has been ticked off.
     timers.current.push(window.setTimeout(() => {
       dispatch({ type: "runMatching", caseId: record.id });
       router.push(`/cases/${record.id}/matches`);
@@ -50,7 +51,7 @@ export function FindMatches({ record, label, variant = "solid" }: {
         {running ? t("search.searching") : (label ?? t("case.findMatches"))}
       </Button>
 
-      <Modal open={running} onClose={() => { /* deliberately not dismissible mid-query */ }} title={t("search.title")}>
+      <Modal open={running} dismissible={false} onClose={() => { /* the query owns its own lifecycle */ }} title={t("search.title")}>
         <p className="og-small" style={{ marginTop: 0 }}>{t("search.intro", { id: record.id, n: cohorts })}</p>
         <div className="og-stack" style={{ marginTop: 18 }}>
           {STAGES.map((n, i) => (
@@ -66,7 +67,7 @@ export function FindMatches({ record, label, variant = "solid" }: {
           ))}
         </div>
         <div className="og-prog" style={{ marginTop: 18 }}>
-          <i style={{ width: `${((stage + 1) / STAGES.length) * 100}%` }} />
+          <i style={{ width: `${Math.max(7, (stage / STAGES.length) * 100)}%` }} />
         </div>
       </Modal>
     </>

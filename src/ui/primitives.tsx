@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { useI18n } from "@/i18n/i18n";
 
 export const cx = (...p: (string | false | null | undefined)[]) => p.filter(Boolean).join(" ");
@@ -166,27 +167,47 @@ export function Avatar({ initials, side }: { initials: string; side?: "a" | "b" 
 
 /* --------------------------------- modal --------------------------------- */
 
-export function Modal({ open, onClose, title, children, footer }: {
+export function Modal({ open, onClose, title, children, footer, dismissible = true }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode; footer?: React.ReactNode;
+  /** A busy dialog that owns its own lifecycle sets this to false: no stray close affordance. */
+  dismissible?: boolean;
 }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+
   React.useEffect(() => {
-    if (!open) return;
+    if (!open || !dismissible) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, onClose]);
-  if (!open) return null;
-  return (
-    <div className="og-scrim" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
+  }, [open, onClose, dismissible]);
+
+  // Locks the page behind the dialog so a mid-query scroll cannot move it.
+  React.useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
+  if (!open || !mounted) return null;
+
+  // Rendered into <body>: an ancestor that has animated `transform` (every
+  // .ody-rise header keeps an identity matrix once the animation settles) would
+  // otherwise become the containing block for the fixed scrim, pinning the
+  // dialog to that header instead of the viewport.
+  return createPortal(
+    <div className="og-scrim" onClick={dismissible ? onClose : undefined} role="dialog" aria-modal="true" aria-label={title}>
       <div className="og-glass og-modal ody-rise" onClick={(e) => e.stopPropagation()}>
         <div className="og-modal-h">
           <h2 className="og-h1" style={{ fontSize: 21 }}>{title}</h2>
-          <button className="og-iconbtn" onClick={onClose} aria-label="Close">✕</button>
+          {dismissible && <button className="og-iconbtn" onClick={onClose} aria-label="Close">✕</button>}
         </div>
         <div className="og-modal-b">{children}</div>
         {footer && <div className="og-modal-b" style={{ paddingTop: 0, display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
